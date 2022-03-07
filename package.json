@@ -16,7 +16,7 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint . --ext .ts,.js",
-    "build": "rimraf dist/* && tsc",
+    "build": "rimraf dist && ncc build src/index.ts",
     "test": "jest"
   },
   "devDependencies": {

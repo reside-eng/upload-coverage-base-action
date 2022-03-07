@@ -4,7 +4,7 @@ import Coveralls from 'coveralls-api';
 /**
  * @param owner - Github repo owner
  * @param repo - Github repo name
- * @param branch
+ * @param branch - Github branch name (used as base branch in Coveralls)
  */
 export async function reportToCoveralls(
   owner: string,

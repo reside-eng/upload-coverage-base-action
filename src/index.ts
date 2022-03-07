@@ -1,2 +1,3 @@
-// TODO: Export your top level functions here
-export {};
+import { run } from './main';
+
+run();

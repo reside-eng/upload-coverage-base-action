@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
-import { context, getOctokit } from '@actions/github';
-import { run } from './run';
+import { context } from '@actions/github';
+import { run } from './main';
 
 jest.mock('@actions/core');
 
