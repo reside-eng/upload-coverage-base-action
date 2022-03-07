@@ -33,11 +33,12 @@ jobs:
       - name: Configure package manager
         run: |
           echo Configuring NPM_TOKEN globally for .npmrc
-          npm set registry "http://npm.pkg.github.com"
+          npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
+          npm set @reside-eng:registry "https://npm.pkg.github.com"
           npm config set '//npm.pkg.github.com/:_authToken' $GITHUB_TOKEN
-          npm set registry "http://registry.npmjs.org"
           npm whoami
         env:
+          NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
