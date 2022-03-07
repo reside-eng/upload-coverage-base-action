@@ -1,7 +1,7 @@
 {
-  "name": "@side/template-library",
+  "name": "@side/upload-coverage-base-action",
   "version": "0.0.0-development",
-  "description": "Library created from reside-eng/template-library",
+  "description": "Custom github action for uploading base branch coverage on pull_request close event (instead of default branch push)",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,6 +30,7 @@
     "@types/node": "16.11.26",
     "@typescript-eslint/eslint-plugin": "5.13.0",
     "@typescript-eslint/parser": "5.13.0",
+    "@vercel/ncc": "0.33.3",
     "eslint": "8.10.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-jsdoc": "37.9.6",
@@ -61,5 +62,10 @@
       "prettier --write"
     ],
     "*.{json,md,yaml,yml,graphql}": "prettier --write"
+  },
+  "dependencies": {
+    "@actions/core": "1.6.0",
+    "@actions/github": "5.0.0",
+    "coveralls-api": "1.2.4"
   }
 }

@@ -2,9 +2,9 @@
 the UI library's name – i.e. fastify-tools -->
 
 <div align="center">
-   <h1>@side/apollo-tools</h1>
+   <h1>@side/upload-coverage-base-action</h1>
    <!-- TODO: Replace with actual description of the UI application -->
-   <div>Library created from reside-eng/template-library</div>
+   <div>Custom github action for uploading base branch coverage on pull_request close event (instead of default branch push)</div>
    </br>
 </div>
 

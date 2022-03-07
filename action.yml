@@ -1,0 +1,10 @@
+name: 'Upload Coverage Base Action'
+description: 'Custom github action for uploading base branch coverage on pull_request close event (instead of default branch push)'
+inputs:
+  github-token:
+    description: 'GITHUB_TOKEN secret (for authentication with Github API)'
+    required: true
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
+  post-if: 'success()'
