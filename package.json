@@ -1,5 +1,5 @@
 {
-  "name": "@side/upload-coverage-base-action",
+  "name": "@reside-eng/upload-coverage-base-action",
   "version": "0.0.0-development",
   "description": "Custom github action for uploading base branch coverage on pull_request close event (instead of default branch push)",
   "main": "dist/index.js",
