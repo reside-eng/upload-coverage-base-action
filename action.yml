@@ -7,6 +7,14 @@ inputs:
   coveralls-token:
     description: 'Coveralls API token'
     required: true
+  lcov-path:
+    description: 'Path to lcov.info file'
+    default: 'coverage/lcov.info'
+    required: false
+  upload-workflow-filename:
+    description: 'Filename of workflow which uploaded coverage artifact'
+    default: 'verify.yml'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'

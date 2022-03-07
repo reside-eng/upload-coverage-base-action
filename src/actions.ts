@@ -34,7 +34,7 @@ export async function getCoverageArtifact(owner: string, repo: string) {
     branch,
     // per_page: 3,
     event: 'pull_request',
-    workflow_id: 'verify.yml',
+    workflow_id: core.getInput('upload-workflow-filename'),
   });
   core.info(`Workflow runs loaded: ${runsData.total_count}`);
 

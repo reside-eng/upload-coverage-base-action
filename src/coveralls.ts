@@ -4,13 +4,18 @@ import Coveralls from 'coveralls-api';
 /**
  * @param owner - Github repo owner
  * @param repo - Github repo name
+ * @param branch
  */
-export async function reportToCoveralls(owner: string, repo: string) {
-  core.debug('Uploading base coverage to Coveralls');
+export async function reportToCoveralls(
+  owner: string,
+  repo: string,
+  branch: string,
+) {
+  core.debug(`Uploading base coverage to Coveralls for branch "${branch}"`);
   try {
     const coveralls = new Coveralls(core.getInput('coveralls-token'));
     await coveralls.postJob('github', owner, repo, {
-      lcov_path: 'coverage/lcov.info',
+      lcov_path: core.getInput('lcov-path'),
       git: {
         branch: 'main',
       },

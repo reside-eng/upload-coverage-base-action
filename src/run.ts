@@ -9,6 +9,8 @@ import { reportToCoveralls } from './coveralls';
  */
 export async function run() {
   const { owner, repo } = context.repo;
+  const { ref: headRef } = context?.payload?.pull_request?.head || {};
+  const baseBranch = core.getInput('base-branch') || headRef;
   const coverageArtifact = await downloadCoverageArtifact(owner, repo);
   core.debug('Coverage artifact successfully downloaded, writing to disk');
 
@@ -24,5 +26,5 @@ export async function run() {
   core.debug('Write to disk successful, uploading to Coveralls');
 
   // Report to Coveralls as base
-  await reportToCoveralls(owner, repo);
+  await reportToCoveralls(owner, repo, baseBranch);
 }

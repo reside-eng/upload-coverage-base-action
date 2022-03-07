@@ -100,11 +100,21 @@ jobs:
       - name: Test app
         run: yarn test:cov
 
+      # Download coverage artifact from verify.yml workflow and send as base to Coveralls
       - name: Upload base coverage to Coveralls
         uses: reside-eng/upload-coverage-base-action@v1.0.0
         with:
           coveralls-token: ${{ secrets.COVERALLS_API_TOKEN }}
 ```
+
+## Inputs
+
+| name                     | required | default            |
+| ------------------------ | -------- | ------------------ |
+| github-token             | true     | undefined          |
+| coveralls-token          | true     | undefined          |
+| lcov-path                | false    | coverage/lcov.info |
+| upload-workflow-filename | false    | verify.yml         |
 
 [build-status-image]: https://github.com/reside-eng/upload-coverage-base-action/actions/workflows/release.yml/badge.svg
 [build-status-url]: https://github.com/reside-eng/upload-coverage-base-action/actions
