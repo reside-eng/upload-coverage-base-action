@@ -30,11 +30,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
 
-      # NOTE: Github Packages as registry NOT NPM
       - name: Configure package manager
         run: |
+          echo Configuring NPM_TOKEN globally for .npmrc
           npm set registry "http://npm.pkg.github.com"
           npm config set '//npm.pkg.github.com/:_authToken' $GITHUB_TOKEN
+          npm set registry "http://registry.npmjs.org"
           npm whoami
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
