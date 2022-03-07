@@ -104,6 +104,7 @@ jobs:
       - name: Upload base coverage to Coveralls
         uses: reside-eng/upload-coverage-base-action@v1.0.0
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           coveralls-token: ${{ secrets.COVERALLS_API_TOKEN }}
 ```
 
