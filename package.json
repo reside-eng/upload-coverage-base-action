@@ -51,10 +51,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reside-eng/template-library.git"
+    "url": "git+https://github.com/reside-eng/upload-coverage-base-action.git"
   },
   "bugs": {
-    "url": "https://github.com/reside-eng/template-library/issues"
+    "url": "https://github.com/reside-eng/upload-coverage-base-action/issues"
   },
   "author": {
     "name": "Side Engineering",
