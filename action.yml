@@ -7,6 +7,9 @@ inputs:
   coveralls-token:
     description: 'Coveralls API token'
     required: true
+  base-branch:
+    description: 'Base branch (defaults to pull_request.head.ref falling back to "main")'
+    required: false
   lcov-path:
     description: 'Path to lcov.info file'
     default: 'coverage/lcov.info'

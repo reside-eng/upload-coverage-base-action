@@ -17,7 +17,7 @@ export async function reportToCoveralls(
     await coveralls.postJob('github', owner, repo, {
       lcov_path: core.getInput('lcov-path'),
       git: {
-        branch: 'main',
+        branch,
       },
     });
     core.info('Successfully uploaded base coverage to Coveralls');

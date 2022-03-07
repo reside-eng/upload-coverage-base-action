@@ -109,12 +109,13 @@ jobs:
 
 ## Inputs
 
-| name                     | required | default            |
-| ------------------------ | -------- | ------------------ |
-| github-token             | true     | undefined          |
-| coveralls-token          | true     | undefined          |
-| lcov-path                | false    | coverage/lcov.info |
-| upload-workflow-filename | false    | verify.yml         |
+| name                     | required | default                |
+| ------------------------ | -------- | ---------------------- | --- | ------- |
+| github-token             | true     | `undefined`            |
+| coveralls-token          | true     | `undefined`            |
+| base-branch              | false    | `pull_request.head.ref |     | 'main'` |
+| lcov-path                | false    | `'coverage/lcov.info'` |
+| upload-workflow-filename | false    | `'verify.yml'`         |
 
 [build-status-image]: https://github.com/reside-eng/upload-coverage-base-action/actions/workflows/release.yml/badge.svg
 [build-status-url]: https://github.com/reside-eng/upload-coverage-base-action/actions
