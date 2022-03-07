@@ -8,7 +8,7 @@ import Coveralls from 'coveralls-api';
 export async function reportToCoveralls(owner: string, repo: string) {
   core.debug('Uploading base coverage to Coveralls');
   try {
-    const coveralls = new Coveralls(process.env.COVERALLS_API_TOKEN);
+    const coveralls = new Coveralls(core.getInput('coveralls-token'));
     await coveralls.postJob('github', owner, repo, {
       lcov_path: 'coverage/lcov.info',
       git: {

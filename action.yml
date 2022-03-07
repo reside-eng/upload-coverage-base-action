@@ -4,6 +4,9 @@ inputs:
   github-token:
     description: 'GITHUB_TOKEN secret (for authentication with Github API)'
     required: true
+  coveralls-token:
+    description: 'Coveralls API token'
+    required: true
 runs:
   using: 'node16'
   main: 'dist/index.js'

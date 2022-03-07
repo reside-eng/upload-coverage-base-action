@@ -17,7 +17,8 @@ function getOctokitInstance() {
  * @returns Coverage artifact
  */
 export async function getCoverageArtifact(owner: string, repo: string) {
-  const { ref: branch, sha: lastCommitSha } = context.payload.pull_request.head;
+  const { ref: branch, sha: lastCommitSha } =
+    context?.payload?.pull_request?.head || {};
   core.info(
     `Branch and last commit sha loaded: ${JSON.stringify({
       branch,
@@ -73,7 +74,11 @@ export async function getCoverageArtifact(owner: string, repo: string) {
   const matchArtifact = artifactsData.artifacts.find(
     (artifact) => artifact.name === coverageKey,
   );
-  core.info(`Matching coverage artifact found ${matchArtifact.name}`);
+  if (!matchArtifact) {
+    core.error(`No artifacts found for workflow with id "${id}"`);
+    throw new Error('Matching coverage artifact not found');
+  }
+  core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
   return matchArtifact;
 }
 
