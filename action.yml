@@ -14,6 +14,11 @@ inputs:
     description: 'Path to lcov.info file'
     default: 'coverage/lcov.info'
     required: false
+  coverage-artifact-name:
+    description: >
+      'Name of coverage artifact (useful for multiple artifacts). NOTE: Each workflow run has it's own artifacts, so name only has to be unique compared to orther artifacts in the single workflow run.'
+    default: 'coverage'
+    required: false
   upload-workflow-filename:
     description: 'Filename of workflow which uploaded coverage artifact'
     default: 'verify.yml'

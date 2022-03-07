@@ -68,11 +68,13 @@ export async function getCoverageArtifact(owner: string, repo: string) {
   if (artifactsData.total_count === 0) {
     core.warning(`No artifacts found for workflow with id "${id}"`);
   }
-  core.info('Workflow artifacts loaded');
+  const coverageKey = core.getInput('coverage-artifact-name');
+  core.info(
+    `Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`,
+  );
   // Filter artifacts to coverage-$sha
-  const coverageKey = `coverage-${lastCommitSha}`;
   const matchArtifact = artifactsData.artifacts.find(
-    (artifact) => artifact.name === coverageKey,
+    (artifact) => artifact?.name === coverageKey,
   );
   if (!matchArtifact) {
     core.error(`No artifacts found for workflow with id "${id}"`);

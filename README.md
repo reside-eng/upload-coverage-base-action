@@ -109,13 +109,14 @@ jobs:
 
 ## Inputs
 
-| name                     | required | default                |
-| ------------------------ | -------- | ---------------------- | --- | ------- |
-| github-token             | true     | `undefined`            |
-| coveralls-token          | true     | `undefined`            |
-| base-branch              | false    | `pull_request.head.ref |     | 'main'` |
-| lcov-path                | false    | `'coverage/lcov.info'` |
-| upload-workflow-filename | false    | `'verify.yml'`         |
+| name                     | required | default                             | description                                                                                                                                                                                       |
+| ------------------------ | -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| github-token             | `true`   | `undefined`                         | GITHUB_TOKEN secret (for authentication with Github API)                                                                                                                                          |
+| coveralls-token          | `true`   | `undefined`                         | Coveralls API token                                                                                                                                                                               |
+| base-branch              | `false`  | `pull_request.head.ref \|\| 'main'` | Base branch (defaults to pull_request.head.ref falling back to "main")                                                                                                                            |
+| coverage-artifact-name   | `false`  | `'coverage'`                        | Name of coverage artifact (useful for multiple artifacts). NOTE: Each workflow run has it's own artifacts, so name only has to be unique compared to orther artifacts in the single workflow run. |
+| lcov-path                | `false`  | `'coverage/lcov.info'`              | Path to lcov.info file                                                                                                                                                                            |
+| upload-workflow-filename | `false`  | `'verify.yml'`                      | Filename of workflow which uploaded coverage artifact                                                                                                                                             |
 
 [build-status-image]: https://github.com/reside-eng/upload-coverage-base-action/actions/workflows/release.yml/badge.svg
 [build-status-url]: https://github.com/reside-eng/upload-coverage-base-action/actions
