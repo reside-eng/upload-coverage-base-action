@@ -1,18 +1,10 @@
-<!-- Replace this title and any other reference to `template-library` with
-the UI library's name – i.e. fastify-tools -->
-
 <div align="center">
-   <h1>@side/apollo-tools</h1>
-   <!-- TODO: Replace with actual description of the UI application -->
-   <div>Library created from reside-eng/template-library</div>
+   <h1>@side/upload-coverage-base-action</h1>
+   <div>Custom github action for uploading base branch coverage on pull_request close event (instead of default branch push)</div>
    </br>
 </div>
 
 <div align="center">
-
-   <!-- TODO: Uncomment package specific badges below -->
-   <!-- [![NPM version][npm-image]][npm-url]
-   [![License][license-image]][license-url] -->
 
 [![Build Status][build-status-image]][build-status-url]
 [![semantic-release][semantic-release-icon]][semantic-release-url]
@@ -20,34 +12,117 @@ the UI library's name – i.e. fastify-tools -->
 
 </div>
 
-This is the template repository for creating additional Next.js UI applications.
-Once a new repository has been created off this template, follow the steps below
-to finalize the initial setup process:
+## Use
 
-1. Replace all references of `template-library` with the name of this application
-1. Create a new file starting your functionality using `src/placeholder.ts` and `src/placeholder.test.ts` as an example
-1. Remove `src/placeholder.ts` and `src/placeholder.test.ts` files
-1. Find all relevant `TODO:` references and make adjustments accordingly
-1. Set general repository settings:
-   a. Only allow squash and merge
-   a. Allow auto-merge
-   a. Allow deletion of head branches
-1. Manage access to the repo by adding the teams that need permissions. This is required for automatic PR review assignment.
-1. Set branch permissions for `main` to set required PR verifications for CI
-1. Start making PRs with basic functionality - continue to next section once library is publishable
+An artifact should be uploaded during the verify stage so that base can be set on closed event of the PR:
 
-## Enable Publishing
+**verify.yml**
 
-1. Add your new repository to the repositories with access to [`NPM_PUBLISH_TOKEN` org level secret](https://github.com/organizations/reside-eng/settings/secrets/actions/NPM_PUBLISH_TOKEN)
-1. Create a PR removing `if: ${{ false }}` from release workflow
-1. Merge above mentioned PR to create first release - this will take a while since all PRs up until this first release will be marked as released by semantic-release
+```yaml
+name: Verify
 
-[npm-image]: https://img.shields.io/npm/v/@side/template-library.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/@side/template-library
-[build-status-image]: https://img.shields.io/github/workflow/status/reside-eng/template-library/Release?style=flat-square
-[build-status-url]: https://github.com/reside-eng/template-library/actions
-[license-image]: https://img.shields.io/npm/l/@side/template-library.svg?style=flat-square
-[license-url]: https://github.com/reside-eng/template-library/blob/main/LICENSE
+on:
+  pull_request:
+    branches:
+      - develop
+
+concurrency:
+  group: verify-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.4.0
+        with:
+          ref: ${{ inputs.GIT_REF }}
+
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify lint
+        run: yarn lint
+
+      - name: Test app
+        run: yarn test:cov
+
+      # Used in merge-main.yml workflow to upload base branch coverage once merged
+      # NOTE: Temporary - planned to be replaced by custom workflow in workflow-templates
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-${{ github.event.pull_request.head.sha }}
+          path: coverage/lcov.info
+```
+
+**merge-main.yml**
+
+```yaml
+name: Merge to main
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  promote-deploy-prod:
+    name: promote-deploy-prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.4.0
+        with:
+          ref: ${{ inputs.GIT_REF }}
+
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify lint
+        run: yarn lint
+
+      - name: Test app
+        run: yarn test:cov
+
+      # Download coverage artifact from verify.yml workflow and send as base to Coveralls
+      - name: Upload base coverage to Coveralls
+        uses: reside-eng/upload-coverage-base-action@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coveralls-token: ${{ secrets.COVERALLS_API_TOKEN }}
+```
+
+## Inputs
+
+| name                     | required | default                             | description                                                                                                                                                                                       |
+| ------------------------ | -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| github-token             | `true`   | `undefined`                         | GITHUB_TOKEN secret (for authentication with Github API)                                                                                                                                          |
+| coveralls-token          | `true`   | `undefined`                         | Coveralls API token                                                                                                                                                                               |
+| base-branch              | `false`  | `pull_request.head.ref \|\| 'main'` | Base branch (defaults to pull_request.head.ref falling back to "main")                                                                                                                            |
+| coverage-artifact-name   | `false`  | `'coverage'`                        | Name of coverage artifact (useful for multiple artifacts). NOTE: Each workflow run has it's own artifacts, so name only has to be unique compared to orther artifacts in the single workflow run. |
+| lcov-path                | `false`  | `'coverage/lcov.info'`              | Path to lcov.info file                                                                                                                                                                            |
+| upload-workflow-filename | `false`  | `'verify.yml'`                      | Filename of workflow which uploaded coverage artifact                                                                                                                                             |
+
+[build-status-image]: https://github.com/reside-eng/upload-coverage-base-action/actions/workflows/release.yml/badge.svg
+[build-status-url]: https://github.com/reside-eng/upload-coverage-base-action/actions
+[license-image]: https://img.shields.io/npm/l/@side/upload-coverage-base-action.svg?style=flat-square
+[license-url]: https://github.com/reside-eng/upload-coverage-base-action/blob/main/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-airbnb-blue.svg?style=flat-square
 [code-style-url]: https://github.com/airbnb/javascript
 [semantic-release-icon]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square
