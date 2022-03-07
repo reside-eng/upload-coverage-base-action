@@ -19,6 +19,11 @@
     "build": "rimraf dist && ncc build src/index.ts",
     "test": "jest"
   },
+  "dependencies": {
+    "@actions/core": "1.6.0",
+    "@actions/github": "5.0.0",
+    "coveralls-api": "1.2.4"
+  },
   "devDependencies": {
     "@commitlint/cli": "16.2.1",
     "@side/commitlint-config": "0.1.10",
@@ -63,9 +68,7 @@
     ],
     "*.{json,md,yaml,yml,graphql}": "prettier --write"
   },
-  "dependencies": {
-    "@actions/core": "1.6.0",
-    "@actions/github": "5.0.0",
-    "coveralls-api": "1.2.4"
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
