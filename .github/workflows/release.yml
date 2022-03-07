@@ -33,7 +33,8 @@ jobs:
       # NOTE: Github Packages as registry NOT NPM
       - name: Configure package manager
         run: |
-          npm config set '//npm.pkg.github.com/:_authToken' ${{ env.GITHUB_TOKEN }}
+          npm set registry "http://npm.pkg.github.com"
+          npm config set '//npm.pkg.github.com/:_authToken' $GITHUB_TOKEN
           npm whoami
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
