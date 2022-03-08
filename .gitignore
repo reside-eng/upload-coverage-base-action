@@ -3,8 +3,6 @@
 /.pnp
 .pnp.js
 
-dist
-
 # misc
 .DS_Store
 *.pem
