@@ -12738,23 +12738,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.reportToCoveralls = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
 /**
- * @param owner - Github repo owner
- * @param repo - Github repo name
- * @param branch - Github branch name (used as base branch in Coveralls)
+ * Report coverage to Coveralls for base branch
  */
-async function reportToCoveralls(owner, repo, branch) {
-    core.debug(`Uploading base coverage to Coveralls for branch "${branch}"`);
+async function reportToCoveralls() {
+    const { owner, repo } = github_1.context.repo;
+    const { ref: baseRef } = github_1.context?.payload?.pull_request?.base || {};
+    const branch = core.getInput('base-branch') || baseRef || 'main';
+    const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
+    const jobSettings = {
+        lcov_path: core.getInput('lcov-path'),
+        service_job_id: `${github_1.context.runId}`,
+        flag_name: flag,
+        commit_sha: github_1.context.sha,
+        git: {
+            branch,
+        },
+    };
+    core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
-        await coveralls.postJob('github', owner, repo, {
-            lcov_path: core.getInput('lcov-path'),
-            git: {
-                branch,
-            },
-        });
-        core.info('Successfully uploaded base coverage to Coveralls');
+        await coveralls.postJob('github', owner, repo, jobSettings);
+        core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}"`);
     }
     catch (err) {
         core.error(`Error uploading lcov to Coveralls: ${JSON.stringify(err)}`);
@@ -12806,21 +12813,21 @@ const coveralls_1 = __nccwpck_require__(2047);
  */
 async function run() {
     const { owner, repo } = github_1.context.repo;
-    const { ref: headRef } = github_1.context?.payload?.pull_request?.head || {};
-    const baseBranch = core.getInput('base-branch') || headRef || 'main';
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
     const coverageFolderPath = './coverage';
     const coveragePath = `${coverageFolderPath}/lcov.info`;
     if (!(0, fs_1.existsSync)(coverageFolderPath)) {
+        core.debug('coverage folder does not exist, creating');
         (0, fs_1.mkdirSync)(coverageFolderPath);
+        core.debug('coverage folder create successful');
     }
     // Write lcov.info file to coverage/lcov.info
     (0, fs_1.writeFileSync)(coveragePath, Buffer.from(coverageArtifact));
     core.debug('Write to disk successful, uploading to Coveralls');
     // Report to Coveralls as base
-    await (0, coveralls_1.reportToCoveralls)(owner, repo, baseBranch);
+    await (0, coveralls_1.reportToCoveralls)();
 }
 exports.run = run;
 
