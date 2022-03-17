@@ -9,6 +9,7 @@
 [![Build Status][build-status-image]][build-status-url]
 [![semantic-release][semantic-release-icon]][semantic-release-url]
 [![Code Style][code-style-image]][code-style-url]
+[![Coverage][coverage-image]][coverage-url]
 
 </div>
 
@@ -127,3 +128,5 @@ jobs:
 [code-style-url]: https://github.com/airbnb/javascript
 [semantic-release-icon]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square
 [semantic-release-url]: https://github.com/semantic-release/semantic-release
+[coverage-image]: https://coveralls.io/repos/github/reside-eng/upload-coverage-base-action/badge.svg?branch=main&t=FFVNNF
+[coverage-url]: https://coveralls.io/github/reside-eng/upload-coverage-base-action?branch=main
