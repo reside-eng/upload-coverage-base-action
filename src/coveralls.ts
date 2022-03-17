@@ -13,6 +13,7 @@ export async function reportToCoveralls() {
   const jobSettings: PostJobFromLCOVArgs = {
     lcov_path: core.getInput('lcov-path'),
     service_job_id: `${context.runId}`,
+    service_name: 'github',
     flag_name: flag,
     commit_sha: context.sha,
     git: {
