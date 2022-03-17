@@ -9,8 +9,6 @@ import { reportToCoveralls } from './coveralls';
  */
 export async function run() {
   const { owner, repo } = context.repo;
-  const { ref: headRef } = context?.payload?.pull_request?.head || {};
-  const baseBranch = core.getInput('base-branch') || headRef || 'main';
   const coverageArtifact = await downloadCoverageArtifact(owner, repo);
   core.debug('Coverage artifact successfully downloaded, writing to disk');
 
@@ -18,7 +16,9 @@ export async function run() {
   const coverageFolderPath = './coverage';
   const coveragePath = `${coverageFolderPath}/lcov.info`;
   if (!existsSync(coverageFolderPath)) {
+    core.debug('coverage folder does not exist, creating');
     mkdirSync(coverageFolderPath);
+    core.debug('coverage folder create successful');
   }
 
   // Write lcov.info file to coverage/lcov.info
@@ -26,5 +26,5 @@ export async function run() {
   core.debug('Write to disk successful, uploading to Coveralls');
 
   // Report to Coveralls as base
-  await reportToCoveralls(owner, repo, baseBranch);
+  await reportToCoveralls();
 }
