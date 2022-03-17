@@ -23,6 +23,9 @@ inputs:
     description: 'Filename of workflow which uploaded coverage artifact'
     default: 'verify.yml'
     required: false
+  flag-name:
+    description: 'Flag name'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
