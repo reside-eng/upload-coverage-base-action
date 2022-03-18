@@ -32,7 +32,7 @@ export async function reportToCoveralls(lcovPath: string) {
       2,
     )}`,
   );
-  core.info(`Contents of lcov file: ${readFileSync(lcovPath).toString()}`);
+  core.info(`Lcov file contents: ${readFileSync(lcovPath).toString()}`);
   try {
     const coveralls = new Coveralls(core.getInput('coveralls-token'));
     const response = await coveralls.postJob(
@@ -51,7 +51,8 @@ export async function reportToCoveralls(lcovPath: string) {
     );
     core.setOutput('coverage-url', response.url);
   } catch (err) {
-    core.error(`Error uploading lcov to Coveralls: ${JSON.stringify(err)}`);
+    const error = err as Error;
+    core.error(`Error uploading lcov to Coveralls: ${error.message}`);
     throw err;
   }
 }
