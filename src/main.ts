@@ -33,11 +33,11 @@ export async function run() {
 
   // Unzip
   core.info(`Trying to unzip "${downloadPath}"`);
-  await exec('unzip', [downloadPath]);
+  await exec('unzip', [downloadPath, '-d', coverageFolder]);
   core.info('Successfully unzipped artifact file --------');
   await exec('ls', [coverageFolder]);
   core.info('before cat');
-  await exec('cat', [coverageFolder]);
+  await exec('ls', [coverageFolder]);
 
   // Report to Coveralls as base
   await reportToCoveralls(coveragePath);

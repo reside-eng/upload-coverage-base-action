@@ -14114,11 +14114,11 @@ async function run() {
     core.info(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
     // Unzip
     core.info(`Trying to unzip "${downloadPath}"`);
-    await (0, exec_1.exec)('unzip', [downloadPath]);
+    await (0, exec_1.exec)('unzip', [downloadPath, '-d', coverageFolder]);
     core.info('Successfully unzipped artifact file --------');
     await (0, exec_1.exec)('ls', [coverageFolder]);
     core.info('before cat');
-    await (0, exec_1.exec)('cat', [coverageFolder]);
+    await (0, exec_1.exec)('ls', [coverageFolder]);
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
