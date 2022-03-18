@@ -98,9 +98,6 @@ export async function downloadCoverageArtifact(owner: string, repo: string) {
     archive_format: 'zip',
   });
 
-  core.info(`downloaded artifact url: ${downloadArtifact.url}`);
-  core.info(
-    `typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`,
-  );
+  core.debug(`downloaded artifact url: ${downloadArtifact.url}`);
   return downloadArtifact.data as ArrayBuffer;
 }

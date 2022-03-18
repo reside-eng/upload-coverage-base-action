@@ -13964,8 +13964,7 @@ async function downloadCoverageArtifact(owner, repo) {
         artifact_id: matchArtifact.id,
         archive_format: 'zip',
     });
-    core.info(`downloaded artifact url: ${downloadArtifact.url}`);
-    core.info(`typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`);
+    core.debug(`downloaded artifact url: ${downloadArtifact.url}`);
     return downloadArtifact.data;
 }
 exports.downloadCoverageArtifact = downloadCoverageArtifact;
@@ -14099,8 +14098,7 @@ async function run() {
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
-    const coverageFileBase = core.getInput('lcov-path');
-    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${coverageFileBase}`;
+    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
     const coverageFolder = (0, path_1.dirname)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
         core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
@@ -14111,14 +14109,11 @@ async function run() {
     const downloadPath = `${coverageFolder}/download.zip`;
     (0, fs_1.writeFileSync)(downloadPath, Buffer.from(coverageArtifact));
     await (0, exec_1.exec)('ls', [coverageFolder]);
-    core.info(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
+    core.debug(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
     // Unzip
-    core.info(`Trying to unzip "${downloadPath}"`);
+    core.debug(`Unziping artifact file at path "${downloadPath}"`);
     await (0, exec_1.exec)('unzip', [downloadPath, '-d', coverageFolder]);
-    core.info('Successfully unzipped artifact file --------');
-    await (0, exec_1.exec)('ls', [coverageFolder]);
-    core.info('before cat');
-    await (0, exec_1.exec)('ls', [coverageFolder]);
+    core.debug('Successfully unzipped artifact file');
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
