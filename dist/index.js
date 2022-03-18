@@ -12742,14 +12742,16 @@ const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
 /**
  * Report coverage to Coveralls for base branch
+ *
+ * @param lcovPath
  */
-async function reportToCoveralls() {
+async function reportToCoveralls(lcovPath) {
     const { owner, repo } = github_1.context.repo;
     const { ref: baseRef } = github_1.context?.payload?.pull_request?.base || {};
     const branch = core.getInput('base-branch') || baseRef || 'main';
     const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
     const jobSettings = {
-        lcov_path: core.getInput('lcov-path'),
+        lcov_path: lcovPath,
         flag_name: flag,
         // service_job_id: `${context.runId}`,
         // service_name: 'github', // Causes "Couldn't find a repository matching this job."
@@ -12762,11 +12764,13 @@ async function reportToCoveralls() {
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
         const response = await coveralls.postJob('github', owner, repo, jobSettings);
+        core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
         // Casting is because current library types are incorrect about error not being on response
         if (response.error) {
             throw new Error(response.message);
         }
-        core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}"`);
+        core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}": ${response.url}`);
+        core.setOutput('coverage_url', response.url);
     }
     catch (err) {
         core.error(`Error uploading lcov to Coveralls: ${JSON.stringify(err)}`);
@@ -12811,6 +12815,7 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const fs_1 = __nccwpck_require__(7147);
+const path_1 = __nccwpck_require__(1017);
 const actions_1 = __nccwpck_require__(7014);
 const coveralls_1 = __nccwpck_require__(2047);
 /**
@@ -12821,18 +12826,18 @@ async function run() {
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
-    const coverageFolderPath = './coverage';
-    const coveragePath = `${coverageFolderPath}/lcov.info`;
-    if (!(0, fs_1.existsSync)(coverageFolderPath)) {
-        core.debug('coverage folder does not exist, creating');
-        (0, fs_1.mkdirSync)(coverageFolderPath);
-        core.debug('coverage folder create successful');
+    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
+    const coverageFolder = (0, path_1.basename)(coveragePath);
+    if (!(0, fs_1.existsSync)(coverageFolder)) {
+        core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
+        (0, fs_1.mkdirSync)(coverageFolder);
+        core.debug('coverage folder created successfully');
     }
     // Write lcov.info file to coverage/lcov.info
     (0, fs_1.writeFileSync)(coveragePath, Buffer.from(coverageArtifact));
-    core.debug('Write to disk successful, uploading to Coveralls');
+    core.debug(`Coverage artifact written to disk at path "${coveragePath}"`);
     // Report to Coveralls as base
-    await (0, coveralls_1.reportToCoveralls)();
+    await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
 exports.run = run;
 
