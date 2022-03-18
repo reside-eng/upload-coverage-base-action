@@ -1,6 +1,8 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
-import Coveralls, { PostJobFromLCOVArgs } from 'coveralls-api';
+import Coveralls, { PostJobFromLCOVArgs, PostJobResponse } from 'coveralls-api';
+
+type ActualPostJobResponse = PostJobResponse & { error: boolean };
 
 /**
  * Report coverage to Coveralls for base branch
@@ -12,10 +14,10 @@ export async function reportToCoveralls() {
   const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
   const jobSettings: PostJobFromLCOVArgs = {
     lcov_path: core.getInput('lcov-path'),
-    service_job_id: `${context.runId}`,
-    service_name: 'github',
     flag_name: flag,
-    commit_sha: context.sha,
+    // service_job_id: `${context.runId}`,
+    // service_name: 'github', // Causes "Couldn't find a repository matching this job."
+    // commit_sha: context.sha,
     git: {
       branch,
     },
@@ -29,7 +31,16 @@ export async function reportToCoveralls() {
   );
   try {
     const coveralls = new Coveralls(core.getInput('coveralls-token'));
-    await coveralls.postJob('github', owner, repo, jobSettings);
+    const response = await coveralls.postJob(
+      'github',
+      owner,
+      repo,
+      jobSettings,
+    );
+    // Casting is because current library types are incorrect about error not being on response
+    if ((response as ActualPostJobResponse).error) {
+      throw new Error(response.message);
+    }
     core.info(
       `Successfully uploaded base coverage to Coveralls for branch "${branch}"`,
     );
