@@ -12,10 +12,10 @@ export async function reportToCoveralls() {
   const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
   const jobSettings: PostJobFromLCOVArgs = {
     lcov_path: core.getInput('lcov-path'),
-    service_job_id: `${context.runId}`,
+    // service_job_id: `${context.runId}`, // Causes incorrect branch detection
     service_name: 'github',
     flag_name: flag,
-    commit_sha: context.sha,
+    // commit_sha: context.sha,
     git: {
       branch,
     },

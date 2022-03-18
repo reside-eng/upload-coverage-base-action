@@ -12750,10 +12750,10 @@ async function reportToCoveralls() {
     const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
     const jobSettings = {
         lcov_path: core.getInput('lcov-path'),
-        service_job_id: `${github_1.context.runId}`,
+        // service_job_id: `${context.runId}`, // Causes incorrect branch detection
         service_name: 'github',
         flag_name: flag,
-        commit_sha: github_1.context.sha,
+        // commit_sha: context.sha,
         git: {
             branch,
         },
