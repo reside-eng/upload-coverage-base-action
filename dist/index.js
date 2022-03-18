@@ -14111,12 +14111,14 @@ async function run() {
     const downloadPath = `${coverageFolder}/download.zip`;
     (0, fs_1.writeFileSync)(downloadPath, Buffer.from(coverageArtifact));
     await (0, exec_1.exec)('ls', [coverageFolder]);
-    core.info(`Coverage artifact written to disk at path "${coveragePath}", unziping`);
+    core.info(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
     // Unzip
     core.info(`Trying to unzip "${downloadPath}"`);
     await (0, exec_1.exec)('unzip', [downloadPath]);
-    core.info('Successfully unzipped artifact file');
-    await (0, exec_1.exec)('cat', [coveragePath]);
+    core.info('Successfully unzipped artifact file --------');
+    await (0, exec_1.exec)('ls', [coverageFolder]);
+    core.info('before cat');
+    await (0, exec_1.exec)('cat', [coverageFolder]);
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }

@@ -28,14 +28,16 @@ export async function run() {
   writeFileSync(downloadPath, Buffer.from(coverageArtifact));
   await exec('ls', [coverageFolder]);
   core.info(
-    `Coverage artifact written to disk at path "${coveragePath}", unziping`,
+    `Coverage artifact written to disk at path "${downloadPath}", unziping`,
   );
 
   // Unzip
   core.info(`Trying to unzip "${downloadPath}"`);
   await exec('unzip', [downloadPath]);
-  core.info('Successfully unzipped artifact file');
-  await exec('cat', [coveragePath]);
+  core.info('Successfully unzipped artifact file --------');
+  await exec('ls', [coverageFolder]);
+  core.info('before cat');
+  await exec('cat', [coverageFolder]);
 
   // Report to Coveralls as base
   await reportToCoveralls(coveragePath);
