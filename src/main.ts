@@ -11,21 +11,21 @@ import { reportToCoveralls } from './coveralls';
 export async function run() {
   const { owner, repo } = context.repo;
   const coverageArtifact = await downloadCoverageArtifact(owner, repo);
-  core.debug('Coverage artifact successfully downloaded, writing to disk');
+  core.info('Coverage artifact successfully downloaded, writing to disk');
   // Confirm coverage folder exists before writing to disk
   const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput(
     'lcov-path',
   )}`;
   const coverageFolder = basename(coveragePath);
   if (!existsSync(coverageFolder)) {
-    core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
+    core.info(`create coverage artifact folder at path "${coverageFolder}"`);
     mkdirSync(coverageFolder);
-    core.debug('coverage folder created successfully');
+    core.info('coverage folder created successfully');
   }
 
   // Write lcov.info file to coverage/lcov.info
   writeFileSync(coveragePath, Buffer.from(coverageArtifact));
-  core.debug(`Coverage artifact written to disk at path "${coveragePath}"`);
+  core.info(`Coverage artifact written to disk at path "${coveragePath}"`);
 
   // Report to Coveralls as base
   await reportToCoveralls(coveragePath);

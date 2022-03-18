@@ -12761,12 +12761,12 @@ async function reportToCoveralls(lcovPath) {
             branch,
         },
     };
-    core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
-    core.debug(`Contents of lcov file: ${(0, fs_1.readFileSync)(lcovPath).toString()}`);
+    core.info(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
+    core.info(`Contents of lcov file: ${(0, fs_1.readFileSync)(lcovPath).toString()}`);
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
         const response = await coveralls.postJob('github', owner, repo, jobSettings);
-        core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
+        core.info(`Response from coveralls: ${JSON.stringify(response)}`);
         // Casting is because current library types are incorrect about error not being on response
         if (response.error) {
             throw new Error(response.message);
@@ -12826,18 +12826,18 @@ const coveralls_1 = __nccwpck_require__(2047);
 async function run() {
     const { owner, repo } = github_1.context.repo;
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
-    core.debug('Coverage artifact successfully downloaded, writing to disk');
+    core.info('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
     const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
     const coverageFolder = (0, path_1.basename)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
-        core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
+        core.info(`create coverage artifact folder at path "${coverageFolder}"`);
         (0, fs_1.mkdirSync)(coverageFolder);
-        core.debug('coverage folder created successfully');
+        core.info('coverage folder created successfully');
     }
     // Write lcov.info file to coverage/lcov.info
     (0, fs_1.writeFileSync)(coveragePath, Buffer.from(coverageArtifact));
-    core.debug(`Coverage artifact written to disk at path "${coveragePath}"`);
+    core.info(`Coverage artifact written to disk at path "${coveragePath}"`);
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
