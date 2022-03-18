@@ -24,16 +24,17 @@ export async function run() {
   }
 
   // Write artifact (zip) file to coverage/lcov.info
-  const downloadPath = `${process.env.GITHUB_WORKSPACE}/${coverageFolder}/download.zip`;
+  const downloadPath = `${coverageFolder}/download.zip`;
   writeFileSync(downloadPath, Buffer.from(coverageArtifact));
+  await exec('ls', [coverageFolder]);
   core.info(
     `Coverage artifact written to disk at path "${coveragePath}", unziping`,
   );
 
   // Unzip
+  core.info(`Trying to unzip "${downloadPath}"`);
   await exec('unzip', [downloadPath]);
   core.info('Successfully unzipped artifact file');
-  await exec('ls', [coverageFolder]);
   await exec('cat', [coveragePath]);
 
   // Report to Coveralls as base
