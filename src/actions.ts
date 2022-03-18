@@ -100,9 +100,9 @@ export async function downloadCoverageArtifact(owner: string, repo: string) {
 
   core.info(`downloaded artifact url: ${downloadArtifact.url}`);
   core.info(
-    `downloaded artifact data: ${JSON.stringify(downloadArtifact.data)}`,
+    `typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`,
   );
   const response = await request(`GET ${downloadArtifact.url}`);
-  core.info(`response from zip get: ${JSON.stringify(response)}`);
-  return downloadArtifact.data as ArrayBuffer;
+  core.info(`response from zip get ------------: ${JSON.stringify(response)}`);
+  return response.data as ArrayBuffer;
 }

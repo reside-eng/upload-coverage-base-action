@@ -13965,10 +13965,10 @@ async function downloadCoverageArtifact(owner, repo) {
         archive_format: 'zip',
     });
     core.info(`downloaded artifact url: ${downloadArtifact.url}`);
-    core.info(`downloaded artifact data: ${JSON.stringify(downloadArtifact.data)}`);
+    core.info(`typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`);
     const response = await request(`GET ${downloadArtifact.url}`);
-    core.info(`response from zip get: ${JSON.stringify(response)}`);
-    return downloadArtifact.data;
+    core.info(`response from zip get ------------: ${JSON.stringify(response)}`);
+    return response.data;
 }
 exports.downloadCoverageArtifact = downloadCoverageArtifact;
 
