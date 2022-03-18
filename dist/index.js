@@ -14105,12 +14105,13 @@ async function run() {
         core.debug('coverage folder created successfully');
     }
     // Write artifact (zip) file to coverage/lcov.info.zip
-    const zipPath = `${coveragePath}.zip`;
-    (0, fs_1.writeFileSync)(zipPath, Buffer.from(coverageArtifact));
-    core.info(`Coverage artifact written to disk at path "${zipPath}", unziping`);
+    // const zipPath = `${coveragePath}.zip`;
+    (0, fs_1.writeFileSync)(coveragePath, Buffer.from(coverageArtifact));
+    core.info(`Coverage artifact written to disk at path "${coveragePath}", unziping`);
     // Unzip
-    await (0, exec_1.exec)('unzip', [zipPath]);
+    await (0, exec_1.exec)('unzip', [coveragePath]);
     core.info('Successfully unzipped artifact file');
+    await (0, exec_1.exec)('ls', [coverageFolder]);
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
