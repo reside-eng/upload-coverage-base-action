@@ -97,5 +97,6 @@ export async function downloadCoverageArtifact(owner: string, repo: string) {
     artifact_id: matchArtifact.id,
     archive_format: 'zip',
   });
+  core.info(`downloaded artifact: ${JSON.stringify(downloadArtifact)}`);
   return downloadArtifact.data as ArrayBuffer;
 }
