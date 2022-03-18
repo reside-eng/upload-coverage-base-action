@@ -90,13 +90,19 @@ export async function getCoverageArtifact(owner: string, repo: string) {
  */
 export async function downloadCoverageArtifact(owner: string, repo: string) {
   const matchArtifact = await getCoverageArtifact(owner, repo);
-  const { rest } = getOctokitInstance();
+  const { rest, request } = getOctokitInstance();
   const downloadArtifact = await rest.actions.downloadArtifact({
     owner,
     repo,
     artifact_id: matchArtifact.id,
     archive_format: 'zip',
   });
-  core.info(`downloaded artifact: ${JSON.stringify(downloadArtifact)}`);
+
+  core.info(`downloaded artifact url: ${downloadArtifact.url}`);
+  core.info(
+    `downloaded artifact data: ${JSON.stringify(downloadArtifact.data)}`,
+  );
+  const response = await request(`GET ${downloadArtifact.url}`);
+  core.info(`response from zip get: ${JSON.stringify(response)}`);
   return downloadArtifact.data as ArrayBuffer;
 }
