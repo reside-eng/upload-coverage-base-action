@@ -12750,9 +12750,9 @@ async function reportToCoveralls() {
     const flag = core.getInput('flag-name') || undefined; // default empty string to undefined
     const jobSettings = {
         lcov_path: core.getInput('lcov-path'),
-        // service_job_id: `${context.runId}`, // Causes incorrect branch detection
-        service_name: 'github',
         flag_name: flag,
+        // service_job_id: `${context.runId}`,
+        // service_name: 'github', // Causes "Couldn't find a repository matching this job."
         // commit_sha: context.sha,
         git: {
             branch,
@@ -12761,7 +12761,11 @@ async function reportToCoveralls() {
     core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
-        await coveralls.postJob('github', owner, repo, jobSettings);
+        const response = await coveralls.postJob('github', owner, repo, jobSettings);
+        // Casting is because current library types are incorrect about error not being on response
+        if (response.error) {
+            throw new Error(response.message);
+        }
         core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}"`);
     }
     catch (err) {
