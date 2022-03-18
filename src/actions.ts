@@ -90,7 +90,7 @@ export async function getCoverageArtifact(owner: string, repo: string) {
  */
 export async function downloadCoverageArtifact(owner: string, repo: string) {
   const matchArtifact = await getCoverageArtifact(owner, repo);
-  const { rest, request } = getOctokitInstance();
+  const { rest } = getOctokitInstance();
   const downloadArtifact = await rest.actions.downloadArtifact({
     owner,
     repo,
@@ -102,7 +102,5 @@ export async function downloadCoverageArtifact(owner: string, repo: string) {
   core.info(
     `typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`,
   );
-  const response = await request(`GET ${downloadArtifact.url}`);
-  core.info(`response from zip get ------------: ${JSON.stringify(response)}`);
-  return response.data as ArrayBuffer;
+  return downloadArtifact.data as ArrayBuffer;
 }

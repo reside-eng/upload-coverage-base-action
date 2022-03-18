@@ -13957,7 +13957,7 @@ exports.getCoverageArtifact = getCoverageArtifact;
  */
 async function downloadCoverageArtifact(owner, repo) {
     const matchArtifact = await getCoverageArtifact(owner, repo);
-    const { rest, request } = getOctokitInstance();
+    const { rest } = getOctokitInstance();
     const downloadArtifact = await rest.actions.downloadArtifact({
         owner,
         repo,
@@ -13966,9 +13966,7 @@ async function downloadCoverageArtifact(owner, repo) {
     });
     core.info(`downloaded artifact url: ${downloadArtifact.url}`);
     core.info(`typeof asdfasdf downloaded artifact data: ${typeof downloadArtifact.data}`);
-    const response = await request(`GET ${downloadArtifact.url}`);
-    core.info(`response from zip get ------------: ${JSON.stringify(response)}`);
-    return response.data;
+    return downloadArtifact.data;
 }
 exports.downloadCoverageArtifact = downloadCoverageArtifact;
 
@@ -14101,7 +14099,8 @@ async function run() {
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
-    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
+    const coverageFileBase = core.getInput('lcov-path');
+    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${coverageFileBase}`;
     const coverageFolder = (0, path_1.dirname)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
         core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
@@ -14109,10 +14108,11 @@ async function run() {
         core.debug('coverage folder created successfully');
     }
     // Write artifact (zip) file to coverage/lcov.info
-    (0, fs_1.writeFileSync)(coveragePath, Buffer.from(coverageArtifact));
+    const downloadPath = `${process.env.GITHUB_WORKSPACE}/${coverageFolder}/download.zip`;
+    (0, fs_1.writeFileSync)(downloadPath, Buffer.from(coverageArtifact));
     core.info(`Coverage artifact written to disk at path "${coveragePath}", unziping`);
     // Unzip
-    await (0, exec_1.exec)('unzip', [coveragePath]);
+    await (0, exec_1.exec)('unzip', [downloadPath]);
     core.info('Successfully unzipped artifact file');
     await (0, exec_1.exec)('ls', [coverageFolder]);
     await (0, exec_1.exec)('cat', [coveragePath]);

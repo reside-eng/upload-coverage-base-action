@@ -14,9 +14,8 @@ export async function run() {
   const coverageArtifact = await downloadCoverageArtifact(owner, repo);
   core.debug('Coverage artifact successfully downloaded, writing to disk');
   // Confirm coverage folder exists before writing to disk
-  const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput(
-    'lcov-path',
-  )}`;
+  const coverageFileBase = core.getInput('lcov-path');
+  const coveragePath = `${process.env.GITHUB_WORKSPACE}/${coverageFileBase}`;
   const coverageFolder = dirname(coveragePath);
   if (!existsSync(coverageFolder)) {
     core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
@@ -25,13 +24,14 @@ export async function run() {
   }
 
   // Write artifact (zip) file to coverage/lcov.info
-  writeFileSync(coveragePath, Buffer.from(coverageArtifact));
+  const downloadPath = `${process.env.GITHUB_WORKSPACE}/${coverageFolder}/download.zip`;
+  writeFileSync(downloadPath, Buffer.from(coverageArtifact));
   core.info(
     `Coverage artifact written to disk at path "${coveragePath}", unziping`,
   );
 
   // Unzip
-  await exec('unzip', [coveragePath]);
+  await exec('unzip', [downloadPath]);
   core.info('Successfully unzipped artifact file');
   await exec('ls', [coverageFolder]);
   await exec('cat', [coveragePath]);
