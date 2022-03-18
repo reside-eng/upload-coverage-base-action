@@ -36,7 +36,7 @@ export async function getCoverageArtifact(owner: string, repo: string) {
     event: 'pull_request',
     workflow_id: core.getInput('upload-workflow-filename'),
   });
-  core.info(`Workflow runs loaded: ${runsData.total_count}`);
+  core.debug(`Workflow runs loaded: ${runsData.total_count}`);
 
   // Filter workflow runs to the one with matching commit sha
   const matchedWorkflow = runsData.workflow_runs.find(
@@ -97,5 +97,7 @@ export async function downloadCoverageArtifact(owner: string, repo: string) {
     artifact_id: matchArtifact.id,
     archive_format: 'zip',
   });
+
+  core.debug(`downloaded artifact url: ${downloadArtifact.url}`);
   return downloadArtifact.data as ArrayBuffer;
 }
