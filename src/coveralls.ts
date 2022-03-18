@@ -47,7 +47,7 @@ export async function reportToCoveralls(lcovPath: string) {
     core.info(
       `Successfully uploaded base coverage to Coveralls for branch "${branch}": ${response.url}`,
     );
-    core.setOutput('coverage_url', response.url);
+    core.setOutput('coverage-url', response.url);
   } catch (err) {
     core.error(`Error uploading lcov to Coveralls: ${JSON.stringify(err)}`);
     throw err;

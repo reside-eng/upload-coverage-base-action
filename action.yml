@@ -26,6 +26,9 @@ inputs:
   flag-name:
     description: 'Flag name'
     required: false
+outputs:
+  coveralls-url:
+    description: 'URL for Coveralls build'
 runs:
   using: 'node16'
   main: 'dist/index.js'
