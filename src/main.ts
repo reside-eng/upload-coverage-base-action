@@ -24,9 +24,8 @@ export async function run() {
     core.debug('coverage folder created successfully');
   }
 
-  // Write artifact (zip) file to coverage/lcov.info.zip
-  // const zipPath = `${coveragePath}.zip`;
-  writeFileSync(coveragePath, Buffer.from(coverageArtifact).toString('utf8'));
+  // Write artifact (zip) file to coverage/lcov.info
+  writeFileSync(coveragePath, Buffer.from(coverageArtifact));
   core.info(
     `Coverage artifact written to disk at path "${coveragePath}", unziping`,
   );
