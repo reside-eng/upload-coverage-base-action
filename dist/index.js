@@ -12740,6 +12740,7 @@ exports.reportToCoveralls = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
+const fs_1 = __nccwpck_require__(7147);
 /**
  * Report coverage to Coveralls for base branch
  *
@@ -12761,6 +12762,7 @@ async function reportToCoveralls(lcovPath) {
         },
     };
     core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
+    core.debug(`Contents of lcov file: ${(0, fs_1.readFileSync)(lcovPath).toString()}`);
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
         const response = await coveralls.postJob('github', owner, repo, jobSettings);

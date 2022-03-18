@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
 import Coveralls, { PostJobFromLCOVArgs, PostJobResponse } from 'coveralls-api';
+import { readFileSync } from 'fs';
 
 type ActualPostJobResponse = PostJobResponse & { error: boolean };
 
@@ -31,6 +32,7 @@ export async function reportToCoveralls(lcovPath: string) {
       2,
     )}`,
   );
+  core.debug(`Contents of lcov file: ${readFileSync(lcovPath).toString()}`);
   try {
     const coveralls = new Coveralls(core.getInput('coveralls-token'));
     const response = await coveralls.postJob(
