@@ -12829,7 +12829,7 @@ async function run() {
     core.info('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
     const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
-    const coverageFolder = (0, path_1.basename)(coveragePath);
+    const coverageFolder = (0, path_1.dirname)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
         core.info(`create coverage artifact folder at path "${coverageFolder}"`);
         (0, fs_1.mkdirSync)(coverageFolder);

@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { basename } from 'path';
+import { dirname } from 'path';
 import { downloadCoverageArtifact } from './actions';
 import { reportToCoveralls } from './coveralls';
 
@@ -16,7 +16,7 @@ export async function run() {
   const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput(
     'lcov-path',
   )}`;
-  const coverageFolder = basename(coveragePath);
+  const coverageFolder = dirname(coveragePath);
   if (!existsSync(coverageFolder)) {
     core.info(`create coverage artifact folder at path "${coverageFolder}"`);
     mkdirSync(coverageFolder);
