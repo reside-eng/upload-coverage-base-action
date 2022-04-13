@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import { context } from '@actions/github';
 import { exec } from '@actions/exec';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
@@ -10,8 +9,7 @@ import { reportToCoveralls } from './coveralls';
  * @param coveragePath - Path to coverage file
  */
 async function downloadAndWriteArtifact(coveragePath: string) {
-  const { owner, repo } = context.repo;
-  const coverageArtifact = await downloadCoverageArtifact(owner, repo);
+  const coverageArtifact = await downloadCoverageArtifact();
   core.debug('Coverage artifact successfully downloaded, writing to disk');
   // Confirm coverage folder exists before writing to disk
 

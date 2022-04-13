@@ -12,11 +12,67 @@ function getOctokitInstance() {
 }
 
 /**
+ * @param arr - Array to sort
+ * @returns Sorted array
+ */
+function sortByCreatedAt<T extends { created_at: string }>(arr: T[]): T[] {
+  return arr.sort((x, y) => {
+    if (!x.created_at) return 1; // use y if x doesn't have timestamp
+    if (!y.created_at) return -1; // use x if y doesn't have timestamp
+    return new Date(y.created_at).getTime() - new Date(x.created_at).getTime();
+  });
+}
+
+/**
+ * @param branch - Branch name
+ * @param lastCommitSha - SHA of last commit
+ */
+async function getWorkflow(branch: string, lastCommitSha: string) {
+  const { rest } = getOctokitInstance();
+  // Load workflow runs
+  const { data: runsData } = await rest.actions.listWorkflowRuns({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    branch,
+    // per_page: 3,
+    event: 'pull_request',
+    workflow_id: core.getInput('upload-workflow-filename'),
+  });
+  if (runsData.total_count === 0) {
+    throw new Error(
+      `No workflow runs found for branch "${branch}" and commit "${lastCommitSha}"`,
+    );
+  }
+  core.info(`Workflow runs loaded: ${runsData.total_count}`);
+
+  // Filter workflow runs to the one with matching commit sha
+  const matchedWorkflow = runsData.workflow_runs.find(
+    (workflowRun) => workflowRun.head_sha === lastCommitSha,
+  );
+  if (!matchedWorkflow) {
+    // Sort artifacts by the most recent created_at date
+    const [mostRecentWorkflow] = sortByCreatedAt(runsData.workflow_runs);
+    core.info(
+      `Workflow run with commit "${lastCommitSha}" not found falling back to most recent workflow run on branch "${branch}"`,
+    );
+    core.info(
+      `Most recent workflow run on branch "${branch}": ${JSON.stringify({
+        id: mostRecentWorkflow.id,
+        sha: mostRecentWorkflow.head_sha,
+        created_at: mostRecentWorkflow.created_at,
+      })}`,
+    );
+    return mostRecentWorkflow;
+  }
+  return matchedWorkflow;
+}
+
+/**
  * @param owner - Repo owner
  * @param repo - Github repo name
  * @returns Coverage artifact
  */
-export async function getCoverageArtifact(owner: string, repo: string) {
+export async function getCoverageArtifact() {
   const { ref: branch, sha: lastCommitSha } =
     context?.payload?.pull_request?.head || {};
   core.info(
@@ -25,30 +81,11 @@ export async function getCoverageArtifact(owner: string, repo: string) {
       lastCommitSha,
     })}`,
   );
-  const { rest } = getOctokitInstance();
-
-  // Load workflow runs
-  const { data: runsData } = await rest.actions.listWorkflowRuns({
-    owner,
-    repo,
-    branch,
-    // per_page: 3,
-    event: 'pull_request',
-    workflow_id: core.getInput('upload-workflow-filename'),
-  });
-  core.debug(`Workflow runs loaded: ${runsData.total_count}`);
-
-  // Filter workflow runs to the one with matching commit sha
-  const matchedWorkflow = runsData.workflow_runs.find(
-    (workflowRun) => workflowRun.head_sha === lastCommitSha,
-  );
-  if (!matchedWorkflow) {
-    throw new Error(`no workflows matching head_sha "${lastCommitSha}"`);
-  }
+  const matchedWorkflow = await getWorkflow(branch, lastCommitSha);
   const { id, status } = matchedWorkflow;
 
   core.info(
-    `Matched workflow loaded, looking for artifacts${JSON.stringify({
+    `Workflow loaded, looking for artifacts ${JSON.stringify({
       id,
       status,
     })} `,
@@ -60,10 +97,11 @@ export async function getCoverageArtifact(owner: string, repo: string) {
   }
 
   // Load artifacts associated with the loaded workflow run
+  const { rest } = getOctokitInstance();
   const { data: artifactsData } = await rest.actions.listWorkflowRunArtifacts({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    run_id: matchedWorkflow.id,
+    run_id: id,
   });
   if (artifactsData.total_count === 0) {
     core.warning(`No artifacts found for workflow with id "${id}"`);
@@ -95,15 +133,14 @@ export async function getCoverageArtifact(owner: string, repo: string) {
 }
 
 /**
- * @param owner - Github repo owner
- * @param repo - Github repo name
+ * Download coverage artifact from Github Actions
  */
-export async function downloadCoverageArtifact(owner: string, repo: string) {
-  const matchArtifact = await getCoverageArtifact(owner, repo);
+export async function downloadCoverageArtifact() {
+  const matchArtifact = await getCoverageArtifact();
   const { rest } = getOctokitInstance();
   const downloadArtifact = await rest.actions.downloadArtifact({
-    owner,
-    repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     artifact_id: matchArtifact.id,
     archive_format: 'zip',
   });
