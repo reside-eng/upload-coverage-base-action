@@ -13944,8 +13944,16 @@ async function getCoverageArtifact(owner, repo) {
     // Filter artifacts to coverage-$sha
     const matchArtifact = artifactsData.artifacts.find((artifact) => artifact?.name === coverageKey);
     if (!matchArtifact) {
-        core.error(`No artifacts found for workflow with id "${id}"`);
-        throw new Error('Matching coverage artifact not found');
+        core.info(`Artifact with name "${coverageKey}" not found, falling back to first artifact`);
+        // Sort artifacts by the most recent created_at date
+        const [mostRecentArtifact] = artifactsData.artifacts.sort((x, y) => {
+            if (!x.created_at)
+                return 1; // use y if x doesn't have timestamp
+            if (!y.created_at)
+                return -1; // use x if y doesn't have timestamp
+            return (new Date(y.created_at).getTime() - new Date(x.created_at).getTime());
+        });
+        return mostRecentArtifact;
     }
     core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
     return matchArtifact;
@@ -14008,11 +14016,10 @@ exports.reportToCoveralls = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
-const fs_1 = __nccwpck_require__(7147);
 /**
  * Report coverage to Coveralls for base branch
  *
- * @param lcovPath
+ * @param lcovPath - Path to lcov file
  */
 async function reportToCoveralls(lcovPath) {
     const { owner, repo } = github_1.context.repo;
@@ -14029,12 +14036,11 @@ async function reportToCoveralls(lcovPath) {
             branch,
         },
     };
-    core.info(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
-    core.info(`Lcov file contents: ${(0, fs_1.readFileSync)(lcovPath).toString()}`);
+    core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
     try {
-        const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
+        const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token', { required: true }));
         const response = await coveralls.postJob('github', owner, repo, jobSettings);
-        core.info(`Response from coveralls: ${JSON.stringify(response)}`);
+        core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
         // Casting is because current library types are incorrect about error not being on response
         if (response.error) {
             throw new Error(response.message);
@@ -14091,14 +14097,13 @@ const path_1 = __nccwpck_require__(1017);
 const actions_1 = __nccwpck_require__(7014);
 const coveralls_1 = __nccwpck_require__(2047);
 /**
- *
+ * @param coveragePath - Path to coverage file
  */
-async function run() {
+async function downloadAndWriteArtifact(coveragePath) {
     const { owner, repo } = github_1.context.repo;
     const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
-    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
     const coverageFolder = (0, path_1.dirname)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
         core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
@@ -14108,12 +14113,25 @@ async function run() {
     // Write artifact (zip) file to coverage/lcov.info
     const downloadPath = `${coverageFolder}/download.zip`;
     (0, fs_1.writeFileSync)(downloadPath, Buffer.from(coverageArtifact));
-    await (0, exec_1.exec)('ls', [coverageFolder]);
     core.debug(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
     // Unzip
     core.debug(`Unziping artifact file at path "${downloadPath}"`);
     await (0, exec_1.exec)('unzip', [downloadPath, '-d', coverageFolder]);
     core.debug('Successfully unzipped artifact file');
+}
+/**
+ *
+ */
+async function run() {
+    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
+    // Use coverage file if it exists (Next builds), otherwise download artifact and write to disk (Node builds)
+    if ((0, fs_1.existsSync)(coveragePath)) {
+        core.debug(`Coverage file already exists at path "${coveragePath}"`);
+    }
+    else {
+        core.debug(`Coverage file does not already exist at path "${coveragePath}", downloading from artifact`);
+        await downloadAndWriteArtifact(coveragePath);
+    }
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }

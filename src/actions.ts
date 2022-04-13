@@ -77,8 +77,18 @@ export async function getCoverageArtifact(owner: string, repo: string) {
     (artifact) => artifact?.name === coverageKey,
   );
   if (!matchArtifact) {
-    core.error(`No artifacts found for workflow with id "${id}"`);
-    throw new Error('Matching coverage artifact not found');
+    core.info(
+      `Artifact with name "${coverageKey}" not found, falling back to first artifact`,
+    );
+    // Sort artifacts by the most recent created_at date
+    const [mostRecentArtifact] = artifactsData.artifacts.sort((x, y) => {
+      if (!x.created_at) return 1; // use y if x doesn't have timestamp
+      if (!y.created_at) return -1; // use x if y doesn't have timestamp
+      return (
+        new Date(y.created_at).getTime() - new Date(x.created_at).getTime()
+      );
+    });
+    return mostRecentArtifact;
   }
   core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
   return matchArtifact;
