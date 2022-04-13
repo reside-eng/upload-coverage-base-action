@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
+import fs from 'fs';
 import { run } from './main';
 
 jest.mock('@actions/core');
@@ -19,16 +20,22 @@ interface MockObj {
 
 let mock: MockObj;
 
+jest.spyOn(fs, 'existsSync');
+(fs.existsSync as any).mockImplementation(() => true);
+jest.mock('./coveralls.ts', () => ({
+  reportToCoveralls: jest.fn(),
+}));
+
 jest.mock('@actions/github', () => ({
   getOctokit: jest.fn(() => ({
     rest: {
       actions: {
         listWorkflowRuns: jest
           .fn()
-          .mockResolvedValue({ data: { workflow_runs: [] } }),
+          .mockResolvedValue({ data: { workflow_runs: [{}] } }),
         listWorkflowRunArtifacts: jest
           .fn()
-          .mockResolvedValue({ data: { artifacts: [] } }),
+          .mockResolvedValue({ data: { artifacts: [{}] } }),
         downloadArtifact: jest.fn().mockResolvedValue({ data: {} }),
       },
     },
@@ -85,9 +92,9 @@ function setupMock() {
 
 describe('Run function', () => {
   beforeEach(() => setupMock());
-  it('should throw if a matching sha is not found', async () => {
-    await expect(() => run()).rejects.toThrowError(
-      'no workflows matching head_sha "undefined"',
-    );
+  it('should call to report to coveralls if existing file is found', async () => {
+    await run();
+    // expect(reportToCoveralls).toHaveBeenCalledTimes(1);
+    // expect(reportToCoveralls).toHaveBeenCalledWith('./lcov.info');
   });
 });

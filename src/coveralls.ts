@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
 import Coveralls, { PostJobFromLCOVArgs, PostJobResponse } from 'coveralls-api';
-import { readFileSync } from 'fs';
 
 type ActualPostJobResponse = PostJobResponse & { error: boolean };
 
