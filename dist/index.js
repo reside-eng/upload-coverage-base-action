@@ -13896,34 +13896,66 @@ function getOctokitInstance() {
     return (0, github_1.getOctokit)(myToken);
 }
 /**
- * @param owner - Repo owner
- * @param repo - Github repo name
- * @returns Coverage artifact
+ * @param arr - Array to sort
+ * @returns Sorted array
  */
-async function getCoverageArtifact(owner, repo) {
-    const { ref: branch, sha: lastCommitSha } = github_1.context?.payload?.pull_request?.head || {};
-    core.info(`Branch and last commit sha loaded: ${JSON.stringify({
-        branch,
-        lastCommitSha,
-    })}`);
+function sortByCreatedAt(arr) {
+    return arr.sort((x, y) => {
+        if (!x.created_at)
+            return 1; // use y if x doesn't have timestamp
+        if (!y.created_at)
+            return -1; // use x if y doesn't have timestamp
+        return new Date(y.created_at).getTime() - new Date(x.created_at).getTime();
+    });
+}
+/**
+ * @param branch - Branch name
+ * @param lastCommitSha - SHA of last commit
+ */
+async function getWorkflow(branch, lastCommitSha) {
     const { rest } = getOctokitInstance();
     // Load workflow runs
     const { data: runsData } = await rest.actions.listWorkflowRuns({
-        owner,
-        repo,
+        owner: github_1.context.repo.owner,
+        repo: github_1.context.repo.repo,
         branch,
         // per_page: 3,
         event: 'pull_request',
         workflow_id: core.getInput('upload-workflow-filename'),
     });
-    core.debug(`Workflow runs loaded: ${runsData.total_count}`);
+    if (runsData.total_count === 0) {
+        throw new Error(`No workflow runs found for branch "${branch}" and commit "${lastCommitSha}"`);
+    }
+    core.info(`Workflow runs loaded: ${runsData.total_count}`);
     // Filter workflow runs to the one with matching commit sha
     const matchedWorkflow = runsData.workflow_runs.find((workflowRun) => workflowRun.head_sha === lastCommitSha);
     if (!matchedWorkflow) {
-        throw new Error(`no workflows matching head_sha "${lastCommitSha}"`);
+        // Sort artifacts by the most recent created_at date
+        const [mostRecentWorkflow] = sortByCreatedAt(runsData.workflow_runs);
+        core.info(`Workflow run with commit "${lastCommitSha}" not found falling back to most recent workflow run on branch "${branch}"`);
+        core.info(`Most recent workflow run on branch "${branch}": ${JSON.stringify({
+            id: mostRecentWorkflow.id,
+            sha: mostRecentWorkflow.head_sha,
+            created_at: mostRecentWorkflow.created_at,
+        })}`);
+        return mostRecentWorkflow;
     }
+    return matchedWorkflow;
+}
+/**
+ * @param owner - Repo owner
+ * @param repo - Github repo name
+ * @returns Coverage artifact
+ */
+async function getCoverageArtifact() {
+    const { ref: branch, sha: lastCommitSha } = github_1.context?.payload?.pull_request?.head || {};
+    core.info(`Branch and last commit sha loaded: ${JSON.stringify({
+        branch,
+        lastCommitSha,
+    })}`);
+    const matchedWorkflow = await getWorkflow(branch, lastCommitSha);
     const { id, status } = matchedWorkflow;
-    core.info(`Matched workflow loaded, looking for artifacts${JSON.stringify({
+    core.info(`Workflow loaded, looking for artifacts ${JSON.stringify({
         id,
         status,
     })} `);
@@ -13931,10 +13963,11 @@ async function getCoverageArtifact(owner, repo) {
         core.warning('Associated verify workflow did not complete successfully, artifact may not be found');
     }
     // Load artifacts associated with the loaded workflow run
+    const { rest } = getOctokitInstance();
     const { data: artifactsData } = await rest.actions.listWorkflowRunArtifacts({
         owner: github_1.context.repo.owner,
         repo: github_1.context.repo.repo,
-        run_id: matchedWorkflow.id,
+        run_id: id,
     });
     if (artifactsData.total_count === 0) {
         core.warning(`No artifacts found for workflow with id "${id}"`);
@@ -13944,23 +13977,30 @@ async function getCoverageArtifact(owner, repo) {
     // Filter artifacts to coverage-$sha
     const matchArtifact = artifactsData.artifacts.find((artifact) => artifact?.name === coverageKey);
     if (!matchArtifact) {
-        core.error(`No artifacts found for workflow with id "${id}"`);
-        throw new Error('Matching coverage artifact not found');
+        core.info(`Artifact with name "${coverageKey}" not found, falling back to first artifact`);
+        // Sort artifacts by the most recent created_at date
+        const [mostRecentArtifact] = artifactsData.artifacts.sort((x, y) => {
+            if (!x.created_at)
+                return 1; // use y if x doesn't have timestamp
+            if (!y.created_at)
+                return -1; // use x if y doesn't have timestamp
+            return (new Date(y.created_at).getTime() - new Date(x.created_at).getTime());
+        });
+        return mostRecentArtifact;
     }
     core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
     return matchArtifact;
 }
 exports.getCoverageArtifact = getCoverageArtifact;
 /**
- * @param owner - Github repo owner
- * @param repo - Github repo name
+ * Download coverage artifact from Github Actions
  */
-async function downloadCoverageArtifact(owner, repo) {
-    const matchArtifact = await getCoverageArtifact(owner, repo);
+async function downloadCoverageArtifact() {
+    const matchArtifact = await getCoverageArtifact();
     const { rest } = getOctokitInstance();
     const downloadArtifact = await rest.actions.downloadArtifact({
-        owner,
-        repo,
+        owner: github_1.context.repo.owner,
+        repo: github_1.context.repo.repo,
         artifact_id: matchArtifact.id,
         archive_format: 'zip',
     });
@@ -14008,11 +14048,10 @@ exports.reportToCoveralls = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
-const fs_1 = __nccwpck_require__(7147);
 /**
  * Report coverage to Coveralls for base branch
  *
- * @param lcovPath
+ * @param lcovPath - Path to lcov file
  */
 async function reportToCoveralls(lcovPath) {
     const { owner, repo } = github_1.context.repo;
@@ -14029,12 +14068,11 @@ async function reportToCoveralls(lcovPath) {
             branch,
         },
     };
-    core.info(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
-    core.info(`Lcov file contents: ${(0, fs_1.readFileSync)(lcovPath).toString()}`);
+    core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
     try {
-        const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token'));
+        const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token', { required: true }));
         const response = await coveralls.postJob('github', owner, repo, jobSettings);
-        core.info(`Response from coveralls: ${JSON.stringify(response)}`);
+        core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
         // Casting is because current library types are incorrect about error not being on response
         if (response.error) {
             throw new Error(response.message);
@@ -14084,21 +14122,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const github_1 = __nccwpck_require__(5438);
 const exec_1 = __nccwpck_require__(1514);
 const fs_1 = __nccwpck_require__(7147);
 const path_1 = __nccwpck_require__(1017);
 const actions_1 = __nccwpck_require__(7014);
 const coveralls_1 = __nccwpck_require__(2047);
 /**
- *
+ * @param coveragePath - Path to coverage file
  */
-async function run() {
-    const { owner, repo } = github_1.context.repo;
-    const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)(owner, repo);
+async function downloadAndWriteArtifact(coveragePath) {
+    const coverageArtifact = await (0, actions_1.downloadCoverageArtifact)();
     core.debug('Coverage artifact successfully downloaded, writing to disk');
     // Confirm coverage folder exists before writing to disk
-    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
     const coverageFolder = (0, path_1.dirname)(coveragePath);
     if (!(0, fs_1.existsSync)(coverageFolder)) {
         core.debug(`create coverage artifact folder at path "${coverageFolder}"`);
@@ -14108,12 +14143,25 @@ async function run() {
     // Write artifact (zip) file to coverage/lcov.info
     const downloadPath = `${coverageFolder}/download.zip`;
     (0, fs_1.writeFileSync)(downloadPath, Buffer.from(coverageArtifact));
-    await (0, exec_1.exec)('ls', [coverageFolder]);
     core.debug(`Coverage artifact written to disk at path "${downloadPath}", unziping`);
     // Unzip
     core.debug(`Unziping artifact file at path "${downloadPath}"`);
     await (0, exec_1.exec)('unzip', [downloadPath, '-d', coverageFolder]);
     core.debug('Successfully unzipped artifact file');
+}
+/**
+ *
+ */
+async function run() {
+    const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path')}`;
+    // Use coverage file if it exists (Next builds), otherwise download artifact and write to disk (Node builds)
+    if ((0, fs_1.existsSync)(coveragePath)) {
+        core.debug(`Coverage file already exists at path "${coveragePath}"`);
+    }
+    else {
+        core.debug(`Coverage file does not already exist at path "${coveragePath}", downloading from artifact`);
+        await downloadAndWriteArtifact(coveragePath);
+    }
     // Report to Coveralls as base
     await (0, coveralls_1.reportToCoveralls)(coveragePath);
 }
