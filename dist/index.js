@@ -13883,7 +13883,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.downloadCoverageArtifact = exports.getCoverageArtifact = void 0;
+exports.downloadCoverageArtifact = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 /**
@@ -13947,7 +13947,7 @@ async function getWorkflow(branch, lastCommitSha) {
  * @param repo - Github repo name
  * @returns Coverage artifact
  */
-async function getCoverageArtifact() {
+async function getCoverageArtifactFromWorkflow() {
     const { ref: branch, sha: lastCommitSha } = github_1.context?.payload?.pull_request?.head || {};
     core.info(`Branch and last commit sha loaded: ${JSON.stringify({
         branch,
@@ -13991,12 +13991,42 @@ async function getCoverageArtifact() {
     core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
     return matchArtifact;
 }
-exports.getCoverageArtifact = getCoverageArtifact;
+/**
+ * @param owner - Repo owner
+ * @param repo - Github repo name
+ * @returns Coverage artifact
+ */
+async function getCoverageArtifactByName() {
+    const { ref: branch, sha: lastCommitSha } = github_1.context?.payload?.pull_request?.head || {};
+    core.info(`Branch and last commit sha loaded: ${JSON.stringify({
+        branch,
+        lastCommitSha,
+    })}`);
+    // Load artifacts associated with the loaded workflow run
+    const { rest } = getOctokitInstance();
+    const { data: artifactsData } = await rest.actions.listArtifactsForRepo({
+        owner: github_1.context.repo.owner,
+        repo: github_1.context.repo.repo,
+        per_page: 100,
+    });
+    if (artifactsData.total_count === 0) {
+        core.warning(`No artifacts found for repo "${github_1.context.repo.repo}"`);
+    }
+    const coverageKey = core.getInput('coverage-artifact-name') || `coverage-${lastCommitSha}`;
+    core.info(`Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`);
+    // Filter artifacts to coverage-$sha
+    const matchArtifact = artifactsData.artifacts.find((artifact) => artifact?.name === coverageKey);
+    if (!matchArtifact) {
+        throw new Error(`Artifact with name "${coverageKey}" not found, falling back to first artifact`);
+    }
+    core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
+    return matchArtifact;
+}
 /**
  * Download coverage artifact from Github Actions
  */
 async function downloadCoverageArtifact() {
-    const matchArtifact = await getCoverageArtifact();
+    const matchArtifact = await getCoverageArtifactByName();
     const { rest } = getOctokitInstance();
     const downloadArtifact = await rest.actions.downloadArtifact({
         owner: github_1.context.repo.owner,
