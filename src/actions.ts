@@ -140,36 +140,43 @@ async function getCoverageArtifactFromWorkflow() {
 async function getCoverageArtifactByName() {
   const { ref: branch, sha: lastCommitSha } =
     context?.payload?.pull_request?.head || {};
+  core.info('New artifact lookup flow');
   core.info(
     `Branch and last commit sha loaded: ${JSON.stringify({
       branch,
       lastCommitSha,
     })}`,
   );
-
-  // Load artifacts associated with the loaded workflow run
-  const { rest } = getOctokitInstance();
-  const { data: artifactsData } = await rest.actions.listArtifactsForRepo({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    per_page: 100,
-  });
-  if (artifactsData.total_count === 0) {
-    core.warning(`No artifacts found for repo "${context.repo.repo}"`);
-  }
   const coverageKey =
     core.getInput('coverage-artifact-name') || `coverage-${lastCommitSha}`;
   core.info(
     `Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`,
   );
+  const { rest, paginate } = getOctokitInstance();
+
+  // Load all artifacts, paginating until matching name is found
+  const artifacts = await paginate(
+    rest.actions.listArtifactsForRepo,
+    {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+    },
+    (response, done) => {
+      if (response.data.find((artifact) => artifact?.name === coverageKey)) {
+        core.info('Found matching artifact - stopping pagination');
+        done();
+      }
+      return response.data;
+    },
+  );
+  core.info(`Artifacts loaded: ${artifacts.length}`);
+
   // Filter artifacts to coverage-$sha
-  const matchArtifact = artifactsData.artifacts.find(
+  const matchArtifact = artifacts.find(
     (artifact) => artifact?.name === coverageKey,
   );
   if (!matchArtifact) {
-    throw new Error(
-      `Artifact with name "${coverageKey}" not found, falling back to first artifact`,
-    );
+    throw new Error(`Artifact with name "${coverageKey}" not found`);
   }
   core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
   return matchArtifact;
