@@ -30,21 +30,21 @@ async function downloadAndWriteArtifact(coveragePath: string) {
   // Unzip
   core.debug(`Unziping artifact file at path "${downloadPath}"`);
   await exec('unzip', [downloadPath, '-d', coverageFolder]);
-  core.debug('Successfully unzipped artifact file');
+  core.info('Successfully downloaded and unzipped coverage artifact');
 }
 
 /**
  *
  */
 export async function run() {
-  const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput(
-    'lcov-path',
-  )}`;
+  const coveragePath = `${process.env.GITHUB_WORKSPACE}/${
+    core.getInput('lcov-path') || 'coverage/lcov.info'
+  }`;
   // Use coverage file if it exists (Next builds), otherwise download artifact and write to disk (Node builds)
   if (existsSync(coveragePath)) {
-    core.debug(`Coverage file already exists at path "${coveragePath}"`);
+    core.info(`Using existing coverage file at path "${coveragePath}"`);
   } else {
-    core.debug(
+    core.info(
       `Coverage file does not already exist at path "${coveragePath}", downloading from artifact`,
     );
     await downloadAndWriteArtifact(coveragePath);
