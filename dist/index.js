@@ -14088,6 +14088,8 @@ async function downloadAndWriteArtifact(coveragePath) {
  *
  */
 async function run() {
+    core.debug(`lcov-path input: ${core.getInput('lcov-path')}`);
+    // TODO: Handle a path passed which already contains workspace
     const coveragePath = `${process.env.GITHUB_WORKSPACE}/${core.getInput('lcov-path') || 'coverage/lcov.info'}`;
     // Use coverage file if it exists (Next builds), otherwise download artifact and write to disk (Node builds)
     if ((0, fs_1.existsSync)(coveragePath)) {

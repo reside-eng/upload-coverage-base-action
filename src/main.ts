@@ -37,6 +37,8 @@ async function downloadAndWriteArtifact(coveragePath: string) {
  *
  */
 export async function run() {
+  core.debug(`lcov-path input: ${core.getInput('lcov-path')}`);
+  // TODO: Handle a path passed which already contains workspace
   const coveragePath = `${process.env.GITHUB_WORKSPACE}/${
     core.getInput('lcov-path') || 'coverage/lcov.info'
   }`;
