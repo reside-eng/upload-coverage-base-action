@@ -13895,6 +13895,7 @@ function getOctokitInstance() {
     const myToken = core.getInput('github-token');
     return (0, github_1.getOctokit)(myToken);
 }
+let getCoverageHasRetried = false;
 /**
  * @returns Coverage artifact
  */
@@ -13935,6 +13936,12 @@ async function getCoverageArtifactByName() {
     // Filter artifacts to coverage-$sha
     const matchArtifact = artifacts.find((artifact) => coverageArtifactNames.includes(artifact?.name));
     if (!matchArtifact) {
+        // Retry once if no artifact found
+        if (!getCoverageHasRetried) {
+            core.info('Failed to get coverage artifact on first attempt - retrying once');
+            getCoverageHasRetried = true;
+            return getCoverageArtifactByName();
+        }
         throw new Error(`Artifact with one of names: ${coverageArtifactNames.join(', ')} not found`);
     }
     core.info(`Matching coverage artifact found ${matchArtifact.name}`);

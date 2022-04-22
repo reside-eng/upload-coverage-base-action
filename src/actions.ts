@@ -11,10 +11,25 @@ function getOctokitInstance() {
   return getOctokit(myToken);
 }
 
+let getCoverageHasRetried = false;
+
+interface CoverageArtifact {
+  id: number;
+  node_id: string;
+  name: string;
+  size_in_bytes: number;
+  url: string;
+  archive_download_url: string;
+  expired: boolean;
+  created_at: string | null;
+  expires_at: string | null;
+  updated_at: string | null;
+}
+
 /**
  * @returns Coverage artifact
  */
-async function getCoverageArtifactByName() {
+async function getCoverageArtifactByName(): Promise<CoverageArtifact> {
   const { sha: mainSha } = context;
   const { sha: prBaseSha } = context?.payload?.pull_request?.base || {};
   const { ref: branch, sha: prHeadSha } =
@@ -74,6 +89,15 @@ async function getCoverageArtifactByName() {
     coverageArtifactNames.includes(artifact?.name),
   );
   if (!matchArtifact) {
+    // Retry once if no artifact found
+    if (!getCoverageHasRetried) {
+      core.info(
+        'Failed to get coverage artifact on first attempt - retrying once',
+      );
+      getCoverageHasRetried = true;
+      return getCoverageArtifactByName();
+    }
+
     throw new Error(
       `Artifact with one of names: ${coverageArtifactNames.join(
         ', ',
