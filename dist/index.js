@@ -13900,29 +13900,34 @@ function getOctokitInstance() {
  */
 async function getCoverageArtifactByName() {
     const { sha: mainSha } = github_1.context;
-    core.info('Logging out context-------------');
-    core.info(JSON.stringify(github_1.context, null, 2));
+    const { sha: prBaseSha } = github_1.context?.payload?.pull_request?.base || {};
     const { ref: branch, sha: prHeadSha } = github_1.context?.payload?.pull_request?.head || {};
     core.info('Logging out PR conext-------------');
     core.info(JSON.stringify(github_1.context?.payload?.pull_request, null, 2));
     core.info(`Branch and last commit sha loaded: ${JSON.stringify({
         branch,
         mainSha,
+        prBaseSha,
         prHeadSha,
     })}`);
     const coverageKey = core.getInput('coverage-artifact-name') || `coverage-${prHeadSha}`;
-    const fallbackCoverageKey = `coverage-${mainSha}`;
-    core.info(`Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`);
+    const fallbackCoverageKey = `coverage-${prBaseSha}`;
+    const mainShaCoverageKey = `coverage-${mainSha}`;
+    const coverageArtifactNames = [
+        coverageKey,
+        fallbackCoverageKey,
+        mainShaCoverageKey,
+    ];
+    core.info(`Workflow artifacts loaded, looking for artifact with one of the following names: ${coverageArtifactNames.join('\n')}`);
     const { rest, paginate } = getOctokitInstance();
     // Load all artifacts, paginating until matching name is found
     const artifacts = await paginate(rest.actions.listArtifactsForRepo, {
         owner: github_1.context.repo.owner,
         repo: github_1.context.repo.repo,
     }, (response, done) => {
-        const matchingArtifact = response.data.find((artifact) => artifact?.name === coverageKey ||
-            artifact?.name === fallbackCoverageKey);
+        const matchingArtifact = response.data.find((artifact) => coverageArtifactNames.includes(artifact?.name));
         if (matchingArtifact) {
-            core.debug(`Found matching artifact - stopping pagination: ${JSON.stringify(matchingArtifact)}`);
+            core.debug(`Found matching artifact in paginate - stopping pagination: ${JSON.stringify(matchingArtifact)}`);
             done();
         }
         return response.data;
@@ -13930,9 +13935,9 @@ async function getCoverageArtifactByName() {
     core.info(`Artifacts loaded: ${artifacts.length}`);
     core.info(JSON.stringify(artifacts, null, 2));
     // Filter artifacts to coverage-$sha
-    const matchArtifact = artifacts.find((artifact) => artifact?.name === coverageKey || artifact?.name === fallbackCoverageKey);
+    const matchArtifact = artifacts.find((artifact) => coverageArtifactNames.includes(artifact?.name));
     if (!matchArtifact) {
-        throw new Error(`Artifact with name "${coverageKey}" or fallback "${fallbackCoverageKey}" not found`);
+        throw new Error(`Artifact with one of names: ${coverageArtifactNames.join(', ')} not found`);
     }
     core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
     return matchArtifact;

@@ -16,8 +16,7 @@ function getOctokitInstance() {
  */
 async function getCoverageArtifactByName() {
   const { sha: mainSha } = context;
-  core.info('Logging out context-------------');
-  core.info(JSON.stringify(context, null, 2));
+  const { sha: prBaseSha } = context?.payload?.pull_request?.base || {};
   const { ref: branch, sha: prHeadSha } =
     context?.payload?.pull_request?.head || {};
 
@@ -27,14 +26,23 @@ async function getCoverageArtifactByName() {
     `Branch and last commit sha loaded: ${JSON.stringify({
       branch,
       mainSha,
+      prBaseSha,
       prHeadSha,
     })}`,
   );
   const coverageKey =
     core.getInput('coverage-artifact-name') || `coverage-${prHeadSha}`;
-  const fallbackCoverageKey = `coverage-${mainSha}`;
+  const fallbackCoverageKey = `coverage-${prBaseSha}`;
+  const mainShaCoverageKey = `coverage-${mainSha}`;
+  const coverageArtifactNames = [
+    coverageKey,
+    fallbackCoverageKey,
+    mainShaCoverageKey,
+  ];
   core.info(
-    `Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`,
+    `Workflow artifacts loaded, looking for artifact with one of the following names: ${coverageArtifactNames.join(
+      '\n',
+    )}`,
   );
   const { rest, paginate } = getOctokitInstance();
 
@@ -46,14 +54,12 @@ async function getCoverageArtifactByName() {
       repo: context.repo.repo,
     },
     (response, done) => {
-      const matchingArtifact = response.data.find(
-        (artifact) =>
-          artifact?.name === coverageKey ||
-          artifact?.name === fallbackCoverageKey,
+      const matchingArtifact = response.data.find((artifact) =>
+        coverageArtifactNames.includes(artifact?.name),
       );
       if (matchingArtifact) {
         core.debug(
-          `Found matching artifact - stopping pagination: ${JSON.stringify(
+          `Found matching artifact in paginate - stopping pagination: ${JSON.stringify(
             matchingArtifact,
           )}`,
         );
@@ -66,13 +72,14 @@ async function getCoverageArtifactByName() {
   core.info(JSON.stringify(artifacts, null, 2));
 
   // Filter artifacts to coverage-$sha
-  const matchArtifact = artifacts.find(
-    (artifact) =>
-      artifact?.name === coverageKey || artifact?.name === fallbackCoverageKey,
+  const matchArtifact = artifacts.find((artifact) =>
+    coverageArtifactNames.includes(artifact?.name),
   );
   if (!matchArtifact) {
     throw new Error(
-      `Artifact with name "${coverageKey}" or fallback "${fallbackCoverageKey}" not found`,
+      `Artifact with one of names: ${coverageArtifactNames.join(
+        ', ',
+      )} not found`,
     );
   }
   core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
