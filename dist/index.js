@@ -13902,8 +13902,6 @@ async function getCoverageArtifactByName() {
     const { sha: mainSha } = github_1.context;
     const { sha: prBaseSha } = github_1.context?.payload?.pull_request?.base || {};
     const { ref: branch, sha: prHeadSha } = github_1.context?.payload?.pull_request?.head || {};
-    core.info('Logging out PR conext-------------');
-    core.info(JSON.stringify(github_1.context?.payload?.pull_request, null, 2));
     core.info(`Branch and last commit sha loaded: ${JSON.stringify({
         branch,
         mainSha,
@@ -13933,13 +13931,18 @@ async function getCoverageArtifactByName() {
         return response.data;
     });
     core.info(`Artifacts loaded: ${artifacts.length}`);
-    core.info(JSON.stringify(artifacts, null, 2));
+    core.debug(JSON.stringify(artifacts.slice(0, 15), null, 2));
     // Filter artifacts to coverage-$sha
     const matchArtifact = artifacts.find((artifact) => coverageArtifactNames.includes(artifact?.name));
     if (!matchArtifact) {
         throw new Error(`Artifact with one of names: ${coverageArtifactNames.join(', ')} not found`);
     }
-    core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
+    core.info(`Matching coverage artifact found ${matchArtifact.name}`);
+    core.info(`Coverage artifact name references: ${JSON.stringify({
+        isFallbackCoverageKey: matchArtifact.name === fallbackCoverageKey,
+        isMainShaCoverageKey: matchArtifact.name === mainShaCoverageKey,
+        isCoverageKey: matchArtifact.name === coverageKey,
+    })}`);
     return matchArtifact;
 }
 /**
