@@ -13899,12 +13899,15 @@ function getOctokitInstance() {
  * @returns Coverage artifact
  */
 async function getCoverageArtifactByName() {
-    const { ref: branch, sha: lastCommitSha } = github_1.context?.payload?.pull_request?.head || {};
+    const { sha: mainSha } = github_1.context;
+    const { ref: branch, sha: prHeadSha } = github_1.context?.payload?.pull_request?.head || {};
     core.info(`Branch and last commit sha loaded: ${JSON.stringify({
         branch,
-        lastCommitSha,
+        mainSha,
+        prHeadSha,
     })}`);
-    const coverageKey = core.getInput('coverage-artifact-name') || `coverage-${lastCommitSha}`;
+    const coverageKey = core.getInput('coverage-artifact-name') || `coverage-${prHeadSha}`;
+    const fallbackCoverageKey = `coverage-${mainSha}`;
     core.info(`Workflow artifacts loaded, looking for artifact with name "${coverageKey}"`);
     const { rest, paginate } = getOctokitInstance();
     // Load all artifacts, paginating until matching name is found
@@ -13912,17 +13915,19 @@ async function getCoverageArtifactByName() {
         owner: github_1.context.repo.owner,
         repo: github_1.context.repo.repo,
     }, (response, done) => {
-        if (response.data.find((artifact) => artifact?.name === coverageKey)) {
-            core.debug('Found matching artifact - stopping pagination');
+        const matchingArtifact = response.data.find((artifact) => artifact?.name === coverageKey ||
+            artifact?.name === fallbackCoverageKey);
+        if (matchingArtifact) {
+            core.debug(`Found matching artifact - stopping pagination: ${JSON.stringify(matchingArtifact)}`);
             done();
         }
         return response.data;
     });
-    core.info(`Artifacts loaded: ${artifacts.length}`);
+    core.info(`Artifacts loaded: ${artifacts.total_count}`);
     // Filter artifacts to coverage-$sha
-    const matchArtifact = artifacts.find((artifact) => artifact?.name === coverageKey);
+    const matchArtifact = artifacts.find((artifact) => artifact?.name === coverageKey || artifact?.name === fallbackCoverageKey);
     if (!matchArtifact) {
-        throw new Error(`Artifact with name "${coverageKey}" not found`);
+        throw new Error(`Artifact with name "${coverageKey}" or fallback "${fallbackCoverageKey}" not found`);
     }
     core.info(`Matching coverage artifact found ${matchArtifact?.name}`);
     return matchArtifact;
