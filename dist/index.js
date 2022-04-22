@@ -13900,7 +13900,11 @@ function getOctokitInstance() {
  */
 async function getCoverageArtifactByName() {
     const { sha: mainSha } = github_1.context;
+    core.info('Logging out context-------------');
+    core.info(JSON.stringify(github_1.context, null, 2));
     const { ref: branch, sha: prHeadSha } = github_1.context?.payload?.pull_request?.head || {};
+    core.info('Logging out PR conext-------------');
+    core.info(JSON.stringify(github_1.context?.payload?.pull_request, null, 2));
     core.info(`Branch and last commit sha loaded: ${JSON.stringify({
         branch,
         mainSha,
@@ -13923,7 +13927,8 @@ async function getCoverageArtifactByName() {
         }
         return response.data;
     });
-    core.info(`Artifacts loaded: ${artifacts.total_count}`);
+    core.info(`Artifacts loaded: ${artifacts.length}`);
+    core.info(JSON.stringify(artifacts, null, 2));
     // Filter artifacts to coverage-$sha
     const matchArtifact = artifacts.find((artifact) => artifact?.name === coverageKey || artifact?.name === fallbackCoverageKey);
     if (!matchArtifact) {
