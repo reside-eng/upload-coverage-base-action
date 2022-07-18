@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { context } from '@actions/github';
 import Coveralls, { PostJobFromLCOVArgs, PostJobResponse } from 'coveralls-api';
 
-type ActualPostJobResponse = PostJobResponse & { error: boolean };
+type ActualPostJobResponse = (PostJobResponse & { error: boolean }) | null;
 
 /**
  * Report coverage to Coveralls for base branch
@@ -24,7 +24,7 @@ export async function reportToCoveralls(lcovPath: string) {
       branch,
     },
   };
-  core.debug(
+  core.info(
     `Uploading base coverage to Coveralls with settings: ${JSON.stringify(
       jobSettings,
       null,
@@ -35,21 +35,21 @@ export async function reportToCoveralls(lcovPath: string) {
     const coveralls = new Coveralls(
       core.getInput('coveralls-token', { required: true }),
     );
-    const response = await coveralls.postJob(
+    const response = (await coveralls.postJob(
       'github',
       owner,
       repo,
       jobSettings,
-    );
-    core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
+    )) as ActualPostJobResponse;
+    core.info(`Response from coveralls: ${JSON.stringify(response)}`);
     // Casting is because current library types are incorrect about error not being on response
-    if ((response as ActualPostJobResponse).error) {
+    if (response?.error) {
       throw new Error(response.message);
     }
     core.info(
-      `Successfully uploaded base coverage to Coveralls for branch "${branch}": ${response.url}`,
+      `Successfully uploaded base coverage to Coveralls for branch "${branch}". Coveralls URL: ${response?.url}`,
     );
-    core.setOutput('coverage-url', response.url);
+    core.setOutput('coverage-url', response?.url);
   } catch (err) {
     const error = err as Error;
     core.error(`Error uploading lcov to Coveralls: ${error.message}`);

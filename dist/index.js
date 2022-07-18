@@ -14021,17 +14021,17 @@ async function reportToCoveralls(lcovPath) {
             branch,
         },
     };
-    core.debug(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
+    core.info(`Uploading base coverage to Coveralls with settings: ${JSON.stringify(jobSettings, null, 2)}`);
     try {
         const coveralls = new coveralls_api_1.default(core.getInput('coveralls-token', { required: true }));
-        const response = await coveralls.postJob('github', owner, repo, jobSettings);
-        core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
+        const response = (await coveralls.postJob('github', owner, repo, jobSettings));
+        core.info(`Response from coveralls: ${JSON.stringify(response)}`);
         // Casting is because current library types are incorrect about error not being on response
-        if (response.error) {
+        if (response?.error) {
             throw new Error(response.message);
         }
-        core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}": ${response.url}`);
-        core.setOutput('coverage-url', response.url);
+        core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}". Coveralls URL: ${response?.url}`);
+        core.setOutput('coverage-url', response?.url);
     }
     catch (err) {
         const error = err;
