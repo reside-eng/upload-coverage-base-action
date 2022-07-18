@@ -24,7 +24,7 @@ export async function reportToCoveralls(lcovPath: string) {
       branch,
     },
   };
-  core.debug(
+  core.info(
     `Uploading base coverage to Coveralls with settings: ${JSON.stringify(
       jobSettings,
       null,
@@ -41,9 +41,9 @@ export async function reportToCoveralls(lcovPath: string) {
       repo,
       jobSettings,
     );
-    core.debug(`Response from coveralls: ${JSON.stringify(response)}`);
+    core.info(`Response from coveralls: ${JSON.stringify(response)}`);
     // Casting is because current library types are incorrect about error not being on response
-    if ((response as ActualPostJobResponse).error) {
+    if ((response as ActualPostJobResponse)?.error) {
       throw new Error(response.message);
     }
     core.info(
