@@ -32,7 +32,7 @@
     "@side/eslint-config-jest": "0.6.0",
     "@side/prettier-config": "0.0.0",
     "@tsconfig/node16": "1.0.3",
-    "@types/jest": "27.4.1",
+    "@types/jest": "27.5.2",
     "@types/node": "16.11.58",
     "@typescript-eslint/eslint-plugin": "5.13.0",
     "@typescript-eslint/parser": "5.13.0",
