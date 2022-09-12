@@ -31,7 +31,7 @@
     "@side/eslint-config-base": "0.13.3",
     "@side/eslint-config-jest": "0.3.16",
     "@side/prettier-config": "0.0.0",
-    "@tsconfig/node16": "1.0.2",
+    "@tsconfig/node16": "1.0.3",
     "@types/jest": "27.4.1",
     "@types/node": "16.11.26",
     "@typescript-eslint/eslint-plugin": "5.13.0",
