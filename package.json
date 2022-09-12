@@ -26,7 +26,7 @@
     "coveralls-api": "1.2.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "16.2.1",
+    "@commitlint/cli": "16.3.0",
     "@side/commitlint-config": "0.1.12",
     "@side/eslint-config-base": "0.16.0",
     "@side/eslint-config-jest": "0.6.0",
