@@ -120,6 +120,12 @@ jobs:
 | lcov-path                | `false`  | `'coverage/lcov.info'`              | Path to lcov.info file                                                                                                                                                                            |
 | upload-workflow-filename | `false`  | `'verify.yml'`                      | Filename of workflow which uploaded coverage artifact                                                                                                                                             |
 
+# FAQ
+
+## Why Node 16?
+
+Currently custom JS Github Actions only supports `node16` as newest [as seen in their docs](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-javascript-actions).
+
 [build-status-image]: https://github.com/reside-eng/upload-coverage-base-action/actions/workflows/release.yml/badge.svg
 [build-status-url]: https://github.com/reside-eng/upload-coverage-base-action/actions
 [license-image]: https://img.shields.io/npm/l/@side/upload-coverage-base-action.svg?style=flat-square

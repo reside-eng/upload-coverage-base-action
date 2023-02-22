@@ -3,5 +3,12 @@
   "extends": [
     "github>reside-eng/renovate-config:library",
     ":reviewer(team:platform-tools)"
+  ],
+  "packageRules": [
+    {
+      "description": "Prevent upgrade of Node past 16 (until functions runtime supports)",
+      "matchPackageNames": ["node", "@types/node"],
+      "allowedVersions": "^16"
+    }
   ]
 }
