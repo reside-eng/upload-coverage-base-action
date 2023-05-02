@@ -36,24 +36,25 @@ jobs:
           npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
           npm set @reside-eng:registry "https://npm.pkg.github.com"
           npm config set '//npm.pkg.github.com/:_authToken' $GITHUB_TOKEN
+          yarn config set npmAuthToken ${{ env.NPM_TOKEN }}
           npm whoami
         env:
           NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint
         run: yarn lint
 
       - name: Test
-        run: yarn test --coverage --silent
+        run: yarn test --coverage --silent --coverageReporters lcov --coverageReporters json-summary
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2.1.2
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -100,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3
 
       - uses: technote-space/workflow-conclusion-action@v3.0.3
 
