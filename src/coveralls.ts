@@ -6,7 +6,6 @@ type ActualPostJobResponse = (PostJobResponse & { error: boolean }) | null;
 
 /**
  * Report coverage to Coveralls for base branch
- *
  * @param lcovPath - Path to lcov file
  */
 export async function reportToCoveralls(lcovPath: string) {
@@ -49,7 +48,9 @@ export async function reportToCoveralls(lcovPath: string) {
     core.info(
       `Successfully uploaded base coverage to Coveralls for branch "${branch}". Coveralls URL: ${response?.url}`,
     );
-    core.setOutput('coverage-url', response?.url);
+    // NOTE: Removed because @actions/core uses deprecated set output command internally
+    // See: https://github.com/actions/toolkit/issues/1336#issuecomment-1502056286
+    // core.setOutput('coverage-url', response?.url);
   } catch (err) {
     const error = err as Error;
     core.error(`Error uploading lcov to Coveralls: ${error.message}`);
