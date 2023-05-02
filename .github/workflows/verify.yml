@@ -4,70 +4,22 @@ on:
   pull_request:
     branches:
       - main
+      - next
+      - alpha
+      - beta
+      # N.x (maintenance release branches)
+      - '[0-9]+.x'
 
 concurrency:
   group: verify-${{ github.head_ref }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: 16.x
-
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3.5.2
-
-      - name: Use Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v3.6.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Configure package manager
-        run: |
-          echo Configuring NPM_TOKEN globally for .npmrc
-          npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
-          npm whoami
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Verify lint
-        run: yarn lint
-
-      - name: Test
-        run: yarn test --coverage --silent
-
-      - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2.1.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build action
-        run: yarn build
-
-  notification:
-    # TODO: Remove if from release workflow once library is ready to release
-    if: ${{ false }}
-    # if: always()
-    name: notification
-    needs: [build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3.5.2
-
-      - uses: technote-space/workflow-conclusion-action@v3.0.3
-
-      - uses: reside-eng/workflow-status-notification-action@v1.2.2
-        with:
-          current-status: ${{ env.WORKFLOW_CONCLUSION }}
-          slack-webhook: ${{ secrets.SLACK_WEBHOOK_CORE_NON_PROD }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+  verify:
+    name: Reusable verify workflow
+    uses: reside-eng/workflow-templates-library/.github/workflows/verify_library.yml@v1
+    with:
+      NODE_VERSION: 16.x
+      PACKAGE_MANAGER: yarn-berry
+      SLACK_NOTIFICATION_SECRET: SLACK_WEBHOOK_PLATFORM_PROD
+    secrets: inherit
