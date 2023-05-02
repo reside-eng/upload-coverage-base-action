@@ -1264,7 +1264,7 @@ __metadata:
     "@side/eslint-config-base": 1.0.0
     "@side/eslint-config-jest": 1.0.0
     "@side/prettier-config": 1.0.0
-    "@side/semantic-config-base": ^0.0.1
+    "@side/semantic-config-base": 0.0.1
     "@tsconfig/node16": 1.0.3
     "@types/jest": 29.5.1
     "@types/node": 16.18.25
@@ -1358,7 +1358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@side/semantic-config-base@npm:^0.0.1":
+"@side/semantic-config-base@npm:0.0.1":
   version: 0.0.1
   resolution: "@side/semantic-config-base@npm:0.0.1"
   dependencies:
