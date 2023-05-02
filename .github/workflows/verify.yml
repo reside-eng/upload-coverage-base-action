@@ -14,12 +14,46 @@ concurrency:
   group: verify-${{ github.head_ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: 16.x
+
 jobs:
-  verify:
-    name: Reusable verify workflow
-    uses: reside-eng/workflow-templates-library/.github/workflows/verify_library.yml@v1
-    with:
-      NODE_VERSION: 16.x
-      PACKAGE_MANAGER: yarn-berry
-      SLACK_NOTIFICATION_SECRET: SLACK_WEBHOOK_PLATFORM_PROD
-    secrets: inherit
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Configure package manager
+        run: |
+          echo Configuring NPM_TOKEN globally for .npmrc
+          npm config set '//registry.npmjs.org/:_authToken' ${{ env.NPM_TOKEN }}
+          yarn config set npmAuthToken ${{ env.NPM_TOKEN }}
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Verify lint
+        run: yarn lint
+
+      - name: Test
+        run: yarn test --coverage --silent --coverageReporters lcov --coverageReporters json-summary
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build action
+        run: yarn build
