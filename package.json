@@ -31,7 +31,6 @@
     "@side/eslint-config-base": "1.0.0",
     "@side/eslint-config-jest": "1.0.0",
     "@side/prettier-config": "1.0.0",
-    "@side/semantic-config-base": "0.0.1",
     "@tsconfig/node16": "1.0.3",
     "@types/jest": "29.5.1",
     "@types/node": "16.18.25",
@@ -73,8 +72,5 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "packageManager": "yarn@3.5.1",
-  "release": {
-    "extends": "@side/semantic-config-base"
-  }
+  "packageManager": "yarn@3.5.1"
 }

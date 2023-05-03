@@ -1264,7 +1264,6 @@ __metadata:
     "@side/eslint-config-base": 1.0.0
     "@side/eslint-config-jest": 1.0.0
     "@side/prettier-config": 1.0.0
-    "@side/semantic-config-base": 0.0.1
     "@tsconfig/node16": 1.0.3
     "@types/jest": 29.5.1
     "@types/node": 16.18.25
@@ -1285,29 +1284,6 @@ __metadata:
     typescript: 5.0.4
   languageName: unknown
   linkType: soft
-
-"@semantic-release/error@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@semantic-release/error@npm:3.0.0"
-  checksum: 29c4391ecbefd9ea991f8fdf5ab3ceb9c4830281da56d9dbacd945c476cb86f10c3b55cd4a6597098c0ea3a59f1ec4752132abeea633e15972f49f4704e61d35
-  languageName: node
-  linkType: hard
-
-"@semantic-release/exec@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@semantic-release/exec@npm:6.0.3"
-  dependencies:
-    "@semantic-release/error": ^3.0.0
-    aggregate-error: ^3.0.0
-    debug: ^4.0.0
-    execa: ^5.0.0
-    lodash: ^4.17.4
-    parse-json: ^5.0.0
-  peerDependencies:
-    semantic-release: ">=18.0.0"
-  checksum: c6ad2f02ff01a4709c4914f560d0343efea9afe993c733ff971da8bf89604a1460d87b26a1a2ace5992c5ace8e8d384cf314504e0c4b623fc8433e8e8d9e2fe0
-  languageName: node
-  linkType: hard
 
 "@side/commitlint-config@npm:1.0.0":
   version: 1.0.0
@@ -1355,15 +1331,6 @@ __metadata:
   version: 1.0.0
   resolution: "@side/prettier-config@npm:1.0.0"
   checksum: 18d84e43c2657c3da2c0e6529800dddf9cfecee5e72e9a60c3c3abe4848ee600aed294c12b7538ffd015e7d6a61be9b2c0c377b850a05c0f9232d11ff3e1982e
-  languageName: node
-  linkType: hard
-
-"@side/semantic-config-base@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@side/semantic-config-base@npm:0.0.1"
-  dependencies:
-    "@semantic-release/exec": ^6.0.3
-  checksum: cb8c3af2908eca5a1d396988bb8ccda68a3d4590babcc5a8a0b645968fe4aefe528074a178b1602ddcb47434e12d73305c77293e4f3ed4fe3acada8d34484fe9
   languageName: node
   linkType: hard
 
@@ -2699,7 +2666,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
   dependencies:
@@ -5093,7 +5060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.15, lodash@npm:^4.17.4":
+"lodash@npm:^4.17.15":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
