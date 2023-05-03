@@ -20118,7 +20118,6 @@ const github_1 = __nccwpck_require__(5438);
 const coveralls_api_1 = __importDefault(__nccwpck_require__(6398));
 /**
  * Report coverage to Coveralls for base branch
- *
  * @param lcovPath - Path to lcov file
  */
 async function reportToCoveralls(lcovPath) {
@@ -20146,7 +20145,9 @@ async function reportToCoveralls(lcovPath) {
             throw new Error(response.message);
         }
         core.info(`Successfully uploaded base coverage to Coveralls for branch "${branch}". Coveralls URL: ${response?.url}`);
-        core.setOutput('coverage-url', response?.url);
+        // NOTE: Removed because @actions/core uses deprecated set output command internally
+        // See: https://github.com/actions/toolkit/issues/1336#issuecomment-1502056286
+        // core.setOutput('coverage-url', response?.url);
     }
     catch (err) {
         const error = err;
