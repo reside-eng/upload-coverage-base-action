@@ -828,7 +828,7 @@ __metadata:
     "@side/commitlint-config": "npm:1.0.1"
     "@side/eslint-config-base": "npm:2.1.0"
     "@side/prettier-config": "npm:1.0.0"
-    "@types/node": "npm:16.18.35"
+    "@types/node": "npm:20.11.20"
     "@typescript-eslint/eslint-plugin": "npm:7.0.2"
     "@typescript-eslint/parser": "npm:7.0.2"
     "@vercel/ncc": "npm:0.38.1"
@@ -1010,10 +1010,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:16.18.35":
-  version: 16.18.35
-  resolution: "@types/node@npm:16.18.35"
-  checksum: 10/4be16eabb73da7b93d78cf1ba885948bdb4648110fb5a0f0f05688f7a0f039e60ebbc6de2aa772a263bd3866a7478b91363d47827b3d2ffc3f71b0f4812ab78e
+"@types/node@npm:20.11.20":
+  version: 20.11.20
+  resolution: "@types/node@npm:20.11.20"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10/ff449bdc94810dadb54e0f77dd587c6505ef79ffa5a208c16eb29b223365b188f4c935a3abaf0906a01d05257c3da1f72465594a841d35bcf7b6deac7a6938fb
   languageName: node
   linkType: hard
 
@@ -5771,6 +5773,13 @@ __metadata:
     has-symbols: "npm:^1.0.3"
     which-boxed-primitive: "npm:^1.0.2"
   checksum: 10/06e1ee41c1095e37281cb71a975cb3350f7cb470a0665d2576f02cc9564f623bd90cfc0183693b8a7fdf2d242963dcc3010b509fa3ac683f540c765c0f3e7e43
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~5.26.4":
+  version: 5.26.5
+  resolution: "undici-types@npm:5.26.5"
+  checksum: 10/0097779d94bc0fd26f0418b3a05472410408877279141ded2bd449167be1aed7ea5b76f756562cb3586a07f251b90799bab22d9019ceba49c037c76445f7cddd
   languageName: node
   linkType: hard
 
