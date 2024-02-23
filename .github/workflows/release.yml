@@ -49,7 +49,7 @@ jobs:
         run: yarn lint
 
       - name: Test
-        run: yarn test --coverage --silent --coverageReporters lcov --coverageReporters json-summary
+        run: yarn test --coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

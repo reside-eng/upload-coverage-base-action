@@ -48,7 +48,7 @@ jobs:
         run: yarn lint
 
       - name: Test
-        run: yarn test --coverage --silent --coverageReporters lcov --coverageReporters json-summary
+        run: yarn test --coverage
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
