@@ -35,27 +35,17 @@ module.exports = {
         tsx: 'never',
       },
     ],
-    // NOTE: This is added since eslint-plugin-import does not support exports in package.json
-    // which is what firebase-admin v10 uses. See: https://github.com/import-js/eslint-plugin-import/issues/1810
-    'import/no-unresolved': [
-      2,
-      {
-        ignore: [
-          'firebase-admin/database',
-          'firebase-admin/app',
-          'firebase-admin/auth',
-          'firebase-admin/storage',
-          'firebase-admin/firestore',
-        ],
-      },
-    ],
   },
   overrides: [
     {
-      files: ['./jest.setup.js'],
-      extends: ['@side/jest'],
+      files: ['./vitest.config.ts'],
       rules: {
-        '@typescript-eslint/no-var-requires': 0,
+        'import/no-unresolved': [
+          'error',
+          {
+            ignore: ['^vitest/.+'],
+          },
+        ],
       },
     },
   ],

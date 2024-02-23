@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 16.x
+  NODE_VERSION: 20.x
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -48,7 +48,7 @@ jobs:
         run: yarn lint
 
       - name: Test
-        run: yarn test --coverage --silent --coverageReporters lcov --coverageReporters json-summary
+        run: yarn test --coverage
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2

@@ -3,7 +3,6 @@ import { context, getOctokit } from '@actions/github';
 
 /**
  * Get Octokit instance initialized with github-token input
- *
  * @returns Octokit instance
  */
 function getOctokitInstance() {
@@ -93,6 +92,7 @@ async function getCoverageArtifactByName() {
 
 /**
  * Download coverage artifact from Github Actions
+ * @returns Promise which resolves with artifact data
  */
 export async function downloadCoverageArtifact() {
   const matchArtifact = await getCoverageArtifactByName();
