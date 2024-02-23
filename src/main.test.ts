@@ -1,9 +1,11 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
-import fs from 'fs';
+import { existsSync, mkdirSync } from 'fs';
+import { vi, describe, beforeEach, it, Mocked } from 'vitest';
 import { run } from './main';
 
-jest.mock('@actions/core');
+vi.mock('@actions/core');
+vi.mock('fs');
 
 interface MockObj {
   inputs: Record<string, string | undefined>;
@@ -19,48 +21,56 @@ interface MockObj {
 }
 
 let mock: MockObj;
+const mockedExistsSync = vi.mocked(existsSync);
+mockedExistsSync.mockImplementation(() => true);
+const mockedMkdirSync = vi.mocked(mkdirSync);
+mockedMkdirSync.mockImplementation(() => '');
 
-jest.spyOn(fs, 'existsSync');
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(fs.existsSync as any).mockImplementation(() => true);
-jest.mock('./coveralls.ts', () => ({
-  reportToCoveralls: jest.fn(),
+vi.mock('./coveralls.ts', () => ({
+  reportToCoveralls: vi.fn(),
 }));
 
-jest.mock('@actions/github', () => ({
-  getOctokit: jest.fn(() => ({
+vi.mock('@actions/github', () => ({
+  getOctokit: vi.fn(() => ({
     rest: {
       actions: {
-        listWorkflowRuns: jest
+        listWorkflowRuns: vi
           .fn()
           .mockResolvedValue({ data: { workflow_runs: [{}] } }),
-        listWorkflowRunArtifacts: jest
+        listWorkflowRunArtifacts: vi
           .fn()
           .mockResolvedValue({ data: { artifacts: [{}] } }),
-        downloadArtifact: jest.fn().mockResolvedValue({ data: {} }),
+        downloadArtifact: vi.fn().mockResolvedValue({ data: {} }),
       },
     },
+    paginate: vi.fn().mockResolvedValue([{ name: 'coverage-test' }]),
   })),
   context: {
     repo: {
       owner: 'reside-eng',
       repo: 'test',
     },
+    payload: {
+      pull_request: {
+        head: { ref: 'test', sha: 'test' },
+      },
+    },
   },
 }));
 
-const mockCore = core as jest.Mocked<typeof core>;
+const mockCore = core as Mocked<typeof core>;
 
 /**
  *
  */
 function setupMock() {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   mock = {
     // Default action inputs
     inputs: {
       'coveralls-token': 'asdf',
       'github-token': `${process.env.GITHUB_TOKEN}`,
+      'lcov-path': 'coverage/lcov.info',
     },
     repo: {
       owner: 'reside-eng',
