@@ -41619,7 +41619,6 @@ const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
 /**
  * Get Octokit instance initialized with github-token input
- *
  * @returns Octokit instance
  */
 function getOctokitInstance() {
@@ -41678,6 +41677,7 @@ async function getCoverageArtifactByName() {
 }
 /**
  * Download coverage artifact from Github Actions
+ * @returns Promise which resolves with artifact data
  */
 async function downloadCoverageArtifact() {
     const matchArtifact = await getCoverageArtifactByName();

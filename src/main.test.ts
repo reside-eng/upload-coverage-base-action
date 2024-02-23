@@ -21,6 +21,7 @@ interface MockObj {
 let mock: MockObj;
 
 jest.spyOn(fs, 'existsSync');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (fs.existsSync as any).mockImplementation(() => true);
 jest.mock('./coveralls.ts', () => ({
   reportToCoveralls: jest.fn(),
