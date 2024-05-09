@@ -69,5 +69,5 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "packageManager": "yarn@4.2.1"
+  "packageManager": "yarn@4.2.2"
 }
