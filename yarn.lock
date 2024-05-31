@@ -159,7 +159,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:^19.0.0":
+"@commitlint/config-conventional@npm:^19.2.2":
   version: 19.2.2
   resolution: "@commitlint/config-conventional@npm:19.2.2"
   dependencies:
@@ -848,9 +848,9 @@ __metadata:
     "@actions/exec": "npm:1.1.1"
     "@actions/github": "npm:6.0.0"
     "@commitlint/cli": "npm:18.6.1"
-    "@side/commitlint-config": "npm:1.0.2"
-    "@side/eslint-config-base": "npm:2.1.2"
-    "@side/prettier-config": "npm:1.0.0"
+    "@side/commitlint-config": "npm:1.1.0"
+    "@side/eslint-config-base": "npm:2.2.0"
+    "@side/prettier-config": "npm:1.1.0"
     "@types/node": "npm:20.12.14"
     "@typescript-eslint/eslint-plugin": "npm:7.11.0"
     "@typescript-eslint/parser": "npm:7.11.0"
@@ -981,34 +981,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@side/commitlint-config@npm:1.0.2":
-  version: 1.0.2
-  resolution: "@side/commitlint-config@npm:1.0.2"
+"@side/commitlint-config@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@side/commitlint-config@npm:1.1.0"
   dependencies:
-    "@commitlint/config-conventional": "npm:^19.0.0"
+    "@commitlint/config-conventional": "npm:^19.2.2"
   peerDependencies:
-    "@commitlint/cli": ">=13.0.0"
-  checksum: 10/3f249cbc950f689590a8334bdad103928ac7f48f23cfeb5cc8cefa93fa67ddec1f7e8d1821b36aba35433035ca45e0a2dbc5ce3e8683395c052383653fc57d70
+    "@commitlint/cli": ">=19.0.0"
+  checksum: 10/eaefa95cf15ff8c3a67ef8e9f60ea025a171e57e5a716b81c3f821b19c31fa4abc01d1d0c04c76a5404939459f3ab61783f1db7f9b119ddd8db3b6235e715196
   languageName: node
   linkType: hard
 
-"@side/eslint-config-base@npm:2.1.2":
-  version: 2.1.2
-  resolution: "@side/eslint-config-base@npm:2.1.2"
+"@side/eslint-config-base@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@side/eslint-config-base@npm:2.2.0"
   dependencies:
     eslint-config-airbnb-base: "npm:^15.0.0"
     eslint-plugin-import: "npm:^2.25.2"
-    glob: "npm:^10.0.0"
+    glob: "npm:^10.4.1"
   peerDependencies:
     eslint: ">=7.14.0"
-  checksum: 10/e19d29b1fa82403e6f1a98e265df9f04f498a613c76d94cd5e83c90dbc49bc69d88b4b1eaa3b87a533b010be2100382c6236898f5a456197bfaa4555517f9754
+  checksum: 10/acf2231627f97f168a5b67017a61529912adf2d95e03d1020256bec1c96842e91c18331ca185430a878d04266814b7c34fbeaee1642a0f6f87411732f2f2e1ef
   languageName: node
   linkType: hard
 
-"@side/prettier-config@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@side/prettier-config@npm:1.0.0"
-  checksum: 10/18d84e43c2657c3da2c0e6529800dddf9cfecee5e72e9a60c3c3abe4848ee600aed294c12b7538ffd015e7d6a61be9b2c0c377b850a05c0f9232d11ff3e1982e
+"@side/prettier-config@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@side/prettier-config@npm:1.1.0"
+  checksum: 10/45f6dac32afb38144880c95117d9cf71c40b03bd6250989f6fe6862be17980aff4f8dc1cbfdad9b7206a936188f34145b3927ffc7ffc50ea276f004bbdfc464b
   languageName: node
   linkType: hard
 
@@ -3057,7 +3057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.0.0, glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.3.7":
+"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.3.7":
   version: 10.3.15
   resolution: "glob@npm:10.3.15"
   dependencies:
@@ -3069,6 +3069,21 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 10/b2b1c74309979b34fd6010afb50418a12525def32f1d3758d5827fc75d6143fc3ee5d1f3180a43111f6386c9e297c314f208d9d09955a6c6b69f22e92ee97635
+  languageName: node
+  linkType: hard
+
+"glob@npm:^10.4.1":
+  version: 10.4.1
+  resolution: "glob@npm:10.4.1"
+  dependencies:
+    foreground-child: "npm:^3.1.0"
+    jackspeak: "npm:^3.1.2"
+    minimatch: "npm:^9.0.4"
+    minipass: "npm:^7.1.2"
+    path-scurry: "npm:^1.11.1"
+  bin:
+    glob: dist/esm/bin.mjs
+  checksum: 10/d7bb49d2b413f77bdd59fea4ca86dcc12450deee221af0ca93e09534b81b9ef68fe341345751d8ff0c5b54bad422307e0e44266ff8ad7fbbd0c200e8ec258b16
   languageName: node
   linkType: hard
 
@@ -3696,6 +3711,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jackspeak@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jackspeak@npm:3.1.2"
+  dependencies:
+    "@isaacs/cliui": "npm:^8.0.2"
+    "@pkgjs/parseargs": "npm:^0.11.0"
+  dependenciesMeta:
+    "@pkgjs/parseargs":
+      optional: true
+  checksum: 10/7e6b94103e5fea5e6311aacf45fe80e98583df55c39b9d8478dd0ce02f1f8f0a11fc419311c277aca959b95635ec9a6be97445a31794254946c679dd0a19f007
+  languageName: node
+  linkType: hard
+
 "jiti@npm:^1.19.1":
   version: 1.21.0
   resolution: "jiti@npm:1.21.0"
@@ -4295,6 +4323,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minipass@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "minipass@npm:7.1.2"
+  checksum: 10/c25f0ee8196d8e6036661104bacd743785b2599a21de5c516b32b3fa2b83113ac89a2358465bc04956baab37ffb956ae43be679b2262bf7be15fce467ccd7950
+  languageName: node
+  linkType: hard
+
 "minizlib@npm:^2.1.1, minizlib@npm:^2.1.2":
   version: 2.1.2
   resolution: "minizlib@npm:2.1.2"
@@ -4695,7 +4730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-scurry@npm:^1.11.0":
+"path-scurry@npm:^1.11.0, path-scurry@npm:^1.11.1":
   version: 1.11.1
   resolution: "path-scurry@npm:1.11.1"
   dependencies:
