@@ -42,7 +42,7 @@
     "husky": "9.1.4",
     "lint-staged": "15.2.9",
     "prettier": "3.3.3",
-    "rimraf": "5.0.10",
+    "rimraf": "6.0.1",
     "typescript": "5.5.2",
     "vitest": "1.6.0"
   },
